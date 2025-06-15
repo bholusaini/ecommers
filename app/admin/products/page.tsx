@@ -1,8 +1,11 @@
+import Products from "../../../components/admin/products/Prodect"
 
 
 const ProdectRouter = () => {
   return (
-    <div>ProdectRouter</div>
+    <div>
+      <Products/>
+    </div>
   )
 }
 

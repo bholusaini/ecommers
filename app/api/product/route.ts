@@ -7,6 +7,7 @@ import { v4 as uuId } from "uuid";
 import fs from "fs"
 import Prodect from "../../../components/admin/products/Prodect";
 import ProductModel from "../../../model/product.model";
+import ServerCatchError from "../../../Lib/server-catch-error";
 
 export const POST = async (req:NextRequest)=>{
     //  for file uploads
@@ -35,4 +36,25 @@ export const POST = async (req:NextRequest)=>{
   const products=  await ProductModel.create(payload)
     return res.json(products)
 
+}
+
+export const GET = async (req:NextRequest)=>{
+    try{
+       const {searchParams} = new URL(req.url)
+       const slug  = searchParams.get("slug")
+
+       if(slug)
+       {
+        const slugs = await ProductModel.distinct("slug")
+        return res.json(slugs)
+       }
+
+       const products = await ProductModel.find()
+       return res.json(products)
+
+    }
+    catch(err)
+    {
+        return ServerCatchError(err)
+    }
 }

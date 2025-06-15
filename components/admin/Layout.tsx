@@ -101,7 +101,7 @@ const AdminLayout: FC<ChildrenInterface> = ({children}) => {
               <Dropdown menu={acountMenu}>
                 <Avatar 
                   size="large" 
-                  src="/images/logo.jpg"  
+                  src="/images/avt.avif"  
                 />
               </Dropdown>
             </div>
