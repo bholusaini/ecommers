@@ -1,0 +1,29 @@
+
+import  bcrypt  from 'bcrypt';
+import { NextRequest ,NextResponse as res } from "next/server"
+import UserMOdel from "../../../../model/user.model"
+import ServerCatchError from "../../../../Lib/server-catch-error"
+
+import mongoose from "mongoose"
+mongoose.connect("mongodb://localhost:27017/Ecommers")
+
+export const POST = async (req:NextRequest)=>{
+ try{
+    const {email,password} = await req.json()
+    const user = await UserMOdel.findOne({email})
+
+    if(!user)
+      return res.json({messge:"user note found "},{status:404})    
+      
+    const isLogin = bcrypt.compareSync(password,user.password)
+
+   if(!isLogin)
+    return res.json({message:"invalid Credentials"},{status:401})    
+  
+   return res.json({message:"login success"})
+ }
+ catch(err)
+ {
+    ServerCatchError(err)
+ }
+}
