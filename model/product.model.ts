@@ -3,8 +3,23 @@ const productSchema = new Schema({
    title:{
      type:String,
     required:true,
-    lowarecase:true,
     trim:true
+   },
+   price:{
+      type:Number,
+      required:true
+   },
+   discount:{
+      type:Number,
+      required:true
+   },
+   quantity:{
+      type:Number,
+      required:true
+   },
+   description:{
+      type:String,
+      required:true
    },
    image:{
       type:String,
@@ -12,8 +27,6 @@ const productSchema = new Schema({
    },
    slug:{
     type:String,
-    required:true,
-    lowarecase:true,
     trim:true
    }
 
@@ -24,7 +37,7 @@ productSchema.pre("save", function(next){
    next()
 })
 
-const ProductModel = models.Product ||model("Poduct",productSchema)
+const ProductModel = models.Product || model("Product",productSchema)
 
 export default ProductModel
 

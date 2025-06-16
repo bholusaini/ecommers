@@ -1,8 +1,11 @@
 'use client'
 import { AppstoreAddOutlined, ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Card, Divider, Form, Input, InputNumber, Modal, Skeleton, Tag, Upload } from 'antd'
+import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Skeleton, Tag, Upload } from 'antd'
 import React, { useState } from 'react'
 import Image from 'next/image'
+import '@ant-design/v5-patch-for-react-19';
+import ClientCatchError from '../../../Lib/client-catch-error'
+import axios from 'axios'
 
 const Products = () => {
   const [open, setOpen] = useState(false)
@@ -10,13 +13,37 @@ const Products = () => {
   const onSearch = (values: any)=>{
     console.log(values)
   }
+
+  const [productForm] = Form.useForm()
   
   const handleClose = ()=>{
     setOpen(false)
+    productForm.resetFields()
   }
 
-  const createProduct = (values: any)=>{
-    console.log(values)
+  const createProduct = async (values: any)=>{
+    try{
+ 
+      values.image = values.image.file.originFileObj
+
+      const formData = new FormData()  
+
+      for(let key in values){
+      formData.append(key,values[key]) 
+      }
+
+    const {data} = await axios.post("/api/product",formData)
+    console.log(data);
+    productForm.resetFields()
+
+    }
+    catch(err)
+    {
+     
+     ClientCatchError(err)
+    
+    }
+
   }
 
   return (
@@ -69,7 +96,7 @@ const Products = () => {
       <Modal open={open} width={720} centered footer={null} onCancel={handleClose} maskClosable={false}>
         <h1 className='text-lg font-medium'>Add a new product</h1>
         <Divider />
-        <Form layout='vertical' onFinish={createProduct}>
+        <Form layout='vertical' form={productForm} onFinish={createProduct} >
           <Form.Item
             label="Product name"
             name="title"
@@ -124,7 +151,7 @@ const Products = () => {
           </Form.Item>
 
           <Form.Item name="image" rules={[{required: true}]}>
-            <Upload>
+            <Upload   fileList={[]} >
               <Button size="large" icon={<UploadOutlined />}>Upload a product image</Button>
             </Upload>
           </Form.Item>
