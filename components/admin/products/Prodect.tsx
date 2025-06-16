@@ -1,13 +1,16 @@
 'use client'
-import { AppstoreAddOutlined, ArrowLeftOutlined, ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Skeleton, Tag, Upload } from 'antd'
+import {  ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Result, Skeleton, Tag, Upload } from 'antd'
 import React, { useState } from 'react'
 import Image from 'next/image'
 import '@ant-design/v5-patch-for-react-19';
 import ClientCatchError from '../../../Lib/client-catch-error'
 import axios from 'axios'
+import useSWR from 'swr'
+import fetecher from '../../../Lib/fetecher'
 
 const Products = () => {
+  
   const [open, setOpen] = useState(false)
 
   const onSearch = (values: any)=>{
@@ -32,9 +35,9 @@ const Products = () => {
       formData.append(key,values[key]) 
       }
 
-    const {data} = await axios.post("/api/product",formData)
-    console.log(data);
-    productForm.resetFields()
+     await axios.post("/api/product",formData)
+    message.success("product create success fully")
+    handleClose()
 
     }
     catch(err)
@@ -45,6 +48,20 @@ const Products = () => {
     }
 
   }
+  
+   const {data,error,isLoading} =useSWR("/api/product",fetecher)
+
+   if(isLoading){
+    return <Skeleton active/>
+   }
+
+   if(error){
+    return <Result
+      status="error"
+      title={error.message}
+    />
+
+   }
 
   return (
     <div className='flex flex-col gap-8'>
@@ -64,13 +81,13 @@ const Products = () => {
 
       <div className='grid grid-cols-4 gap-8'>
         {
-          Array(20).fill(0).map((item, index)=>(
+          data.map((item:any, index:any)=>(
             <Card 
               key={index}
               hoverable
               cover={
                 <div className='relative w-full h-[180px]'>
-                  <Image src="/images/product.jpg" layout="fill" alt={`product-${index}`} objectFit='cover' className='rounded-t-lg'/>
+                  <Image src={item.image} layout="fill" alt={`product-${index}`} objectFit='cover' className='rounded-t-lg'/>
                 </div>
               }
               actions={[
@@ -79,16 +96,17 @@ const Products = () => {
               ]}
             >
               <Card.Meta 
-                title="Men`s Blue Jeans"
+                title={item.title}
                 description={
                   <div className='flex gap-2'>
-                    <label>₹2000</label>
-                    <del>₹2000</del>
-                    <label>(50% Off)</label>
+                    <label>&#8377;{item.price}</label>
+                    <del>&#8377;{item.price}</del>
+                    <label>{item.discount}</label>
+          
                   </div>
                 }
               />
-              <Tag className='!mt-5' color="cyan">20 PCS</Tag>
+              <Tag className='!mt-5' color="cyan">{item.quantity}</Tag>
             </Card>
           ))
         }
