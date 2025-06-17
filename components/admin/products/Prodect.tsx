@@ -1,20 +1,29 @@
 'use client'
 import {  ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SafetyOutlined, SaveOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
 import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Pagination, Popconfirm, Result, Skeleton, Tag, Upload } from 'antd'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import '@ant-design/v5-patch-for-react-19';
 import ClientCatchError from '../../../Lib/client-catch-error'
 import axios from 'axios'
 import useSWR, { mutate } from 'swr'
 import fetecher from '../../../Lib/fetecher'
+import {debounce} from "lodash"
 
 const Products = () => {
   const [editId, setEditId] = useState <string|null>(null)
   const [open, setOpen] = useState(false)
   const [page,setPage] = useState(1)
   const [limit, setLimit] = useState(16)
+   const {data,error,isLoading} =useSWR(`/api/product/?page=${page}&limit=${limit}`,fetecher)
+   const [product,setProduct] = useState({data:[],total:0})
 
+   useEffect(()=>{
+    if(data){
+      setProduct(data)
+    }
+   },[data])
+  
   const onSearch = (values: any)=>{
     console.log(values)
   }
@@ -58,7 +67,7 @@ const Products = () => {
       setLimit(limit)
     }
 
-   const {data,error,isLoading} =useSWR(`/api/product/?page=${page}&limit=${limit}`,fetecher)
+  
 
    if(isLoading){
     return <Skeleton active/>
@@ -132,6 +141,18 @@ const Products = () => {
       return ClientCatchError(err)
     }
   }
+
+  const onChange = debounce(async(e:any)=>{
+   try{
+    const value = e.target.value.trim()
+    const {data} = await axios.get(`/api/product?search=${value}`)
+    setProduct(data)
+   }
+   catch(err)
+   {
+    return ClientCatchError
+   }
+  },2000)
    
   return (
     <div className='flex flex-col gap-8'>
@@ -140,9 +161,9 @@ const Products = () => {
         <Form onFinish={onSearch}>
           <Form.Item name="search" rules={[{required: true}]} className='!mb-0'>
             <Input 
-              placeholder='Search this site' 
-              suffix={<Button htmlType='submit' type="text" icon={<SearchOutlined />} />} 
+              placeholder='Search this site'              
               className='!w-[350px]'
+              onChange={onChange}
             />
           </Form.Item>
 
@@ -153,7 +174,7 @@ const Products = () => {
 
       <div className='grid grid-cols-4 gap-8'>
         {
-          data.data.map((item:any, index:any)=>(
+          product.data.map((item:any, index:any)=>(
             <Card 
               key={index}
               hoverable

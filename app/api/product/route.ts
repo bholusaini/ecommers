@@ -54,14 +54,21 @@ export const GET = async (req:NextRequest)=>{
        const page = Number(searchParams.get("page")) || 1
        const limit = Number(searchParams.get("limit")) || 16
        const skip = (page-1)*limit
+       const search = searchParams.get("search")
 
        if(slug)
        {
         const slugs = await ProductModel.distinct("slug")
         return res.json(slugs)
        }
-       
        const total = await ProductModel.countDocuments()
+       
+       if(search)
+       {
+        const products = await ProductModel.find({title:RegExp(search,"i")}).sort({createdAt:-1}).skip(skip).limit(limit)
+        return res.json({total,data:products})
+       }
+       
        const products = await ProductModel.find().sort({createdAt:-1}).skip(skip).limit(limit).lean()
        return res.json({total,data:products})
 
