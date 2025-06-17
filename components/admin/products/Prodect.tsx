@@ -1,17 +1,19 @@
 'use client'
-import {  ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Result, Skeleton, Tag, Upload } from 'antd'
+import {  ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SafetyOutlined, SaveOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Card, Divider, Form, Input, InputNumber, message, Modal, Pagination, Popconfirm, Result, Skeleton, Tag, Upload } from 'antd'
 import React, { useState } from 'react'
 import Image from 'next/image'
 import '@ant-design/v5-patch-for-react-19';
 import ClientCatchError from '../../../Lib/client-catch-error'
 import axios from 'axios'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import fetecher from '../../../Lib/fetecher'
 
 const Products = () => {
-  
+  const [editId, setEditId] = useState <string|null>(null)
   const [open, setOpen] = useState(false)
+  const [page,setPage] = useState(1)
+  const [limit, setLimit] = useState(16)
 
   const onSearch = (values: any)=>{
     console.log(values)
@@ -21,6 +23,7 @@ const Products = () => {
   
   const handleClose = ()=>{
     setOpen(false)
+    setEditId(null)
     productForm.resetFields()
   }
 
@@ -49,7 +52,13 @@ const Products = () => {
 
   }
   
-   const {data,error,isLoading} =useSWR("/api/product",fetecher)
+   const onPaginate = (page:number,limit:number)=>{
+    
+      setPage(page)
+      setLimit(limit)
+    }
+
+   const {data,error,isLoading} =useSWR(`/api/product/?page=${page}&limit=${limit}`,fetecher)
 
    if(isLoading){
     return <Skeleton active/>
@@ -63,6 +72,67 @@ const Products = () => {
 
    }
 
+  
+
+   const deleteProduct = async (id:string)=>{
+    try{
+      await axios.delete(`/api/product/${id}`)
+      mutate(`/api/product/?page=${page}&limit=${limit}`)
+    }
+    catch(err)
+    {
+      ClientCatchError(err)
+    }
+   }
+
+   const editProduct = async (item:any)=>{
+     setEditId(item._id )
+     setOpen(true)
+     productForm.setFieldsValue(item)
+     
+   }
+
+  const saveProduct = async (values:any)=>{
+    try{
+      await axios.put(`/api/product/${editId}`,values)
+      handleClose()
+      message.success("product update success fully")
+       mutate(`/api/product/?page=${page}&limit=${limit}`)
+    }
+    catch(err)
+    {
+      ClientCatchError(err)
+    }
+  }
+ 
+  const changeImage = (id:string)=>{
+    try{
+      const input = document.createElement("input")
+      input.type= "file"
+      input.accept = "image/*"
+      input.click()
+      
+      input.onchange  = async()=>{
+        if(!input.files)
+          return message.error("File not slectet")
+
+        const file = input.files[0]
+        input.remove()
+
+        const formData = new FormData()
+        formData.append("id",id)
+        formData.append("image",file)
+
+        await axios.put("/api/product/change-image",formData)
+        mutate(`/api/product/?page=${page}&limit=${limit}`)
+      }
+    }
+    catch(err)
+    {
+      return ClientCatchError(err)
+    }
+  }
+   
   return (
     <div className='flex flex-col gap-8'>
       <Skeleton active />
@@ -75,24 +145,30 @@ const Products = () => {
               className='!w-[350px]'
             />
           </Form.Item>
+
         </Form>
-        <Button onClick={()=>setOpen(true)} type='primary' size='large' icon={<PlusOutlined />} className='!bg-indigo-500'>Add product</Button>
+        <Button htmlType='submit' size='large' type='primary' onClick={()=>setOpen(true)} icon={<ArrowRightOutlined />}>Add product</Button>
+
       </div>
 
       <div className='grid grid-cols-4 gap-8'>
         {
-          data.map((item:any, index:any)=>(
+          data.data.map((item:any, index:any)=>(
             <Card 
               key={index}
               hoverable
               cover={
                 <div className='relative w-full h-[180px]'>
+                  <Popconfirm title="do you want to change image" onConfirm={()=>changeImage(item._id)}>
+
                   <Image src={item.image} layout="fill" alt={`product-${index}`} objectFit='cover' className='rounded-t-lg'/>
+                  </Popconfirm>
                 </div>
               }
               actions={[
-                <EditOutlined key="edit" className='!text-green-400' />,
-                <DeleteOutlined key="delete" className='!text-rose-400' />
+                <EditOutlined key="edit" className='!text-green-400' onClick={() => editProduct(item)} />,
+
+                <DeleteOutlined key="delete" className='!text-rose-400' onClick={() => { deleteProduct(item._id)}}/>
               ]}
             >
               <Card.Meta 
@@ -111,10 +187,21 @@ const Products = () => {
           ))
         }
       </div>
+        
+        <div className='flex justify-end w-full bg-blue-300'>
+          <Pagination
+          total={data.total}
+          onChange={onPaginate}
+          current={page}
+          pageSizeOptions={[16,32,64,100]}
+          defaultPageSize={limit}
+          />
+        </div>
+
       <Modal open={open} width={720} centered footer={null} onCancel={handleClose} maskClosable={false}>
         <h1 className='text-lg font-medium'>Add a new product</h1>
         <Divider />
-        <Form layout='vertical' form={productForm} onFinish={createProduct} >
+        <Form layout='vertical' form={productForm} onFinish={editId ? saveProduct: createProduct} >
           <Form.Item
             label="Product name"
             name="title"
@@ -167,15 +254,26 @@ const Products = () => {
           <Form.Item label="Description" rules={[{required: true}]} name="description">
             <Input.TextArea rows={5} placeholder='Description' />
           </Form.Item>
-
-          <Form.Item name="image" rules={[{required: true}]}>
-            <Upload   fileList={[]} >
-              <Button size="large" icon={<UploadOutlined />}>Upload a product image</Button>
-            </Upload>
-          </Form.Item>
+            
+            {
+              !editId && 
+                <Form.Item name="image" rules={[{required: true}]}>
+                  <Upload   fileList={[]} >
+                    <Button size="large" icon={<UploadOutlined />}>Upload a product image</Button>
+                  </Upload>
+                </Form.Item>
+            }
+          
 
           <Form.Item>
-            <Button htmlType='submit' size='large' type='primary' icon={<ArrowRightOutlined />}>Add now</Button>
+             {
+            editId ?
+            <Button htmlType='submit' type='primary' danger size='large' icon={<SaveOutlined/>} className='!bg-indigo-500'>Save Changes </Button>
+            :
+            <Button htmlType='submit' type='primary' size='large' icon={<PlusOutlined />} className='!bg-indigo-500'>Add now</Button>
+
+          }
+            
           </Form.Item>
         </Form>
       </Modal>
