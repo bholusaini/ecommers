@@ -12,6 +12,7 @@ interface CustomeSessionInterface extends Session{
     }
 }
 export  const authOptions:NextAuthOptions = {
+     
 
     providers:[
         CredentialsProvider({
@@ -52,6 +53,7 @@ export  const authOptions:NextAuthOptions = {
     session:{
         strategy:"jwt"
     },
+     
     callbacks:{
         async jwt({token,user}){
      
@@ -69,7 +71,8 @@ export  const authOptions:NextAuthOptions = {
             }
             return customeSession
         }
-    }
+    },
+    secret: process.env.NEXTAUTH_SECRET
 }
 
 const handler = NextAuth(authOptions)
