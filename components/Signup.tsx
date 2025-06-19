@@ -7,10 +7,16 @@ import { UserAddOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
 import Logo from './shared/logo'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+
 
 const Signup = () => {
-    const signup = (value: any)=>{
-        console.log(value)
+    const router = useRouter()
+
+    const signup = async (value: any)=>{      
+      await axios.post("/api/user/signup",value)      
+       router.push("/login")
     }
 
     return (

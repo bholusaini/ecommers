@@ -2,15 +2,23 @@
 import { Button, Card, Divider, Form, Input } from 'antd'
 import Image from 'next/image'
 import React from 'react'
-
 import { ArrowRightOutlined, GoogleOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
 import Logo from './shared/logo'
+import { signIn } from 'next-auth/react'
+import { redirect } from 'next/dist/server/api-utils'
 
 const Login= () => {
-    const login = (value: any)=>{
-        console.log(value)
+    const login = async  (value: any)=>{
+        const payload = {
+           ...value,
+            redirect:true,
+            callbackUrl:'/'
+        }
+
+        const res = await signIn('credentials',payload)
+        console.log(res);
     }
 
     return (

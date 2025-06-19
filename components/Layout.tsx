@@ -5,10 +5,12 @@ import React, { FC } from 'react'
 import 'animate.css'
 
 import Link from 'next/link'
-import { UserAddOutlined } from '@ant-design/icons'
+import { LoginOutlined, ProfileOutlined, SettingOutlined, UserAddOutlined } from '@ant-design/icons'
 import { usePathname } from 'next/navigation'
 import ChildrenInterface from '../interface/Children.interface'
 import Logo from './shared/logo'
+import { Avatar, Dropdown } from 'antd'
+import { useSession } from 'next-auth/react'
 
 const menus = [
   {
@@ -29,8 +31,30 @@ const menus = [
   }
 ]
 
+  const acountMenu = {
+    items: [
+      {
+        icon: <ProfileOutlined />,
+        label: <a>bk sarswal</a>,
+        key: 'fullname'
+      },
+      {
+        icon: <LoginOutlined />,
+        label: <a>Logout</a>,
+        key: 'logout'
+      },
+      {
+        icon: <SettingOutlined />,
+        label: <a>Settings</a>,
+        key: 'settings'
+      }
+    ]
+  }
+
 const Layout: FC<ChildrenInterface> = ({children}) => {
   const pathname = usePathname()
+  const session = useSession()
+  console.log(session);
   
   const blacklists = [
     "/admin",
@@ -65,6 +89,14 @@ const Layout: FC<ChildrenInterface> = ({children}) => {
               <UserAddOutlined className='mr-2' />
               Sign up
             </Link>
+               <div>
+              <Dropdown menu={acountMenu}>
+                <Avatar 
+                  size="large" 
+                  src="/images/avt.avif"  
+                />
+              </Dropdown>
+            </div>
         </nav>
         <div className='w-9/12 mx-auto py-24'>{children}</div>
         <footer className='bg-zinc-900 h-[450px] flex items-center justify-center text-white text-4xl '>

@@ -1,5 +1,5 @@
 
-import { NextResponse  as  res} from "next/server"
+import { NextResponse as res} from "next/server"
 
 const ServerCatchError = (err:unknown,status:number=500 )=>{
 

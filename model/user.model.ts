@@ -13,13 +13,7 @@ const userSchema = new Schema({
     required:true,
     lowarecase:true,
     trim:true
-  },
-  mobile:{
-    type:String,
-    required:true,
-    lowarecase:true,
-    trim:true
-  },
+  }, 
   password:{
     type:String,
     required:true,
@@ -33,6 +27,6 @@ userSchema.pre("save", async function(next){
   next()
 })
 
-const UserMOdel = models.User || model("User",userSchema)
+const UserModel = models.User || model("User",userSchema)
 
-export default UserMOdel
+export default UserModel

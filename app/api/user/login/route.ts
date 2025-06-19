@@ -1,7 +1,7 @@
 
 import  bcrypt  from 'bcrypt';
 import { NextRequest ,NextResponse as res } from "next/server"
-import UserMOdel from "../../../../model/user.model"
+import UserModel from "../../../../model/user.model"
 import ServerCatchError from "../../../../Lib/server-catch-error"
 
 import mongoose from "mongoose"
@@ -10,7 +10,7 @@ mongoose.connect("mongodb://localhost:27017/Ecommers")
 export const POST = async (req:NextRequest)=>{
  try{
     const {email,password} = await req.json()
-    const user = await UserMOdel.findOne({email})
+    const user = await UserModel.findOne({email})
 
     if(!user)
       return res.json({messge:"user note found "},{status:404})    
@@ -19,11 +19,17 @@ export const POST = async (req:NextRequest)=>{
 
    if(!isLogin)
     return res.json({message:"invalid Credentials"},{status:401})    
+
+   const payload = {
+    id:user._id,
+    name:user.fullname,
+    email:user.email,
+   }
   
-   return res.json({message:"login success"})
+   return res.json(payload)
  }
  catch(err)
  {
-    ServerCatchError(err)
+   return ServerCatchError(err)
  }
 }
