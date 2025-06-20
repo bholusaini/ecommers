@@ -1,11 +1,12 @@
+const db = (`${process.env.DB_URL}/${process.env.DB_NAME}`)
+import mongoose from "mongoose"
+mongoose.connect(db)
 
 import  bcrypt  from 'bcrypt';
 import { NextRequest ,NextResponse as res } from "next/server"
 import UserModel from "../../../../model/user.model"
 import ServerCatchError from "../../../../Lib/server-catch-error"
 
-import mongoose from "mongoose"
-mongoose.connect("mongodb://localhost:27017/Ecommers")
 
 export const POST = async (req:NextRequest)=>{
  try{

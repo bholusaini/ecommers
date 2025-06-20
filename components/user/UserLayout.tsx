@@ -9,6 +9,7 @@ import React, { FC } from 'react'
 import { usePathname } from 'next/navigation'
 import ChildrenInterface from '../../interface/Children.interface'
 import { getBreadCrumbs } from '../admin/Layout'
+import { signOut } from 'next-auth/react'
 
 const UserLayout: FC<ChildrenInterface> = ({children}) => {
   const pathname = usePathname()
@@ -30,7 +31,9 @@ const UserLayout: FC<ChildrenInterface> = ({children}) => {
       key: 'settings'
     }
   ]
-
+  const logout = ()=>{
+    signOut()
+  }
   return (
     <Layout className='min-h-screen'>
         <Sider width={300} className='border-r border-r-gray-100'>
@@ -45,7 +48,7 @@ const UserLayout: FC<ChildrenInterface> = ({children}) => {
                   <p className='text-gray-300 mb-3'>bksarswa@mail.com</p>  
                 </div>  
               </div>
-              <Button icon={<LogoutOutlined />} size='large'>Logout</Button>
+              <Button icon={<LogoutOutlined />} size='large' onClick={logout}>Logout</Button>
             </div>
         </Sider>
         <Layout>

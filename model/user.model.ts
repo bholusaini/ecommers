@@ -13,14 +13,23 @@ const userSchema = new Schema({
     required:true,
     lowarecase:true,
     trim:true
-  }, 
+  },   
   password:{
     type:String,
     required:true,
     lowarecase:true,
     trim:true
   },
+  role:{
+    type:String
+  }
 },{timestamps:true})
+
+
+userSchema.pre("save", async function(next){
+  this.role = "user"
+  next()
+})
 
 userSchema.pre("save", async function(next){
   this.password = await bcrypt.hash(this.password ,12)
