@@ -89,9 +89,9 @@ const wellcome = async (db)=>{
     const {role} = await inquirer.prompt(promptOption)
    
     if(role.includes("User"))
-        return createRole("User",db)
+        return createRole("user",db)
     if(role.includes("Admin"))
-        return createRole("Admin",db)
+        return createRole("admin",db)
 
     if(role.includes("Exit"))
      return exitApp()

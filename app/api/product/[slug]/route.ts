@@ -6,6 +6,9 @@ import { NextRequest ,NextResponse as res} from "next/server";
 import ServerCatchError from "../../../../Lib/server-catch-error";
 import SlugInterface from "../../../../interface/Slug.interface";
 import ProductModel from "../../../../model/product.model";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { message } from "antd";
 
 export  const GET = async (req:NextRequest,context:SlugInterface)=>{
     try{
@@ -24,7 +27,14 @@ export  const GET = async (req:NextRequest,context:SlugInterface)=>{
 }
 export  const PUT = async (req:NextRequest,context:SlugInterface)=>{
     try{
-        const {slug:id} = await context.params
+        const session =  await getServerSession(authOptions)
+       
+        if(!session)
+            return res.json({message:"unauthorized"},{status:401})
+
+        if(session.user.role !== "admin")
+            return res.json({message:'Unauthorized'},{status:401})
+        const {slug:id} = await context.params 
         const body = await req.json()
         const product = await ProductModel.findByIdAndUpdate(id,body,{new:true})
       

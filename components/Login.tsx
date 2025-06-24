@@ -6,19 +6,47 @@ import { ArrowRightOutlined, GoogleOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
 import Logo from './shared/logo'
-import { signIn } from 'next-auth/react'
-import { redirect } from 'next/dist/server/api-utils'
+import { getSession, signIn } from 'next-auth/react'
+
+import ClientCatchError from '@/Lib/client-catch-error'
+import { useRouter } from 'next/navigation'
+
 
 const Login= () => {
+    const router = useRouter()
     const login = async  (value: any)=>{
-        const payload = {
+      try{
+          const payload = {
            ...value,
-            redirect:true,
-            callbackUrl:'/'
+            redirect:false,
+            
         }
 
-        const res = await signIn('credentials',payload)
-        console.log(res);
+        const res =  await signIn('credentials',payload)
+
+        if (!res || !res.ok) {
+           throw new Error("Invalid email or password");
+           }
+
+        const session = await getSession() 
+
+        console.log(session)
+       
+        if(!session)
+            throw new Error("faild to login user")
+       
+        if(session.user.role === "user")
+            return router.replace("/user/orders")
+
+        if(session.user.role === "admin")
+            return router.replace("/admin/orders")
+      }
+      catch(err)
+      {
+        ClientCatchError(err)
+      }
+        
+      
     }
 
     return (

@@ -1,23 +1,13 @@
 import axios from "axios";
 
-import NextAuth, { NextAuthOptions, Session } from "next-auth";
+import NextAuth, { NextAuthOptions, Session,User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials"
-import { signIn } from "next-auth/react";
 
-interface CustomeSessionInterface extends Session{
-    user:{
-        id:string,
-        email:string
-        name:string
-    }
-}
 export  const authOptions:NextAuthOptions = {
      
-
     providers:[
         CredentialsProvider({
             name: 'Credentials',
-
             credentials:{
                 email:{
                     label:"Email",
@@ -37,7 +27,7 @@ export  const authOptions:NextAuthOptions = {
                 }
                
                const {data} =  await axios.post(`${process.env.SERVER}/api/user/login`,payload)
-              console.log(data);
+             
                return data
             }
                catch(err)
@@ -60,16 +50,18 @@ export  const authOptions:NextAuthOptions = {
             if(user)
             {
                 token.id = user.id 
+                token.role = user.role 
             }
             return token
         },
 
         async session({session,token}){
-            const customeSession = session as CustomeSessionInterface
+          
             if(token){
-                customeSession.user.id = token.id as string
+              session.user.id = token.id as string
+              session.user.role = token.role as string
             }
-            return customeSession
+            return session
         }
     },
     secret: process.env.NEXTAUTH_SECRET

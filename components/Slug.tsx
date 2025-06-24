@@ -15,8 +15,7 @@ const Slug: FC<TitleInterface> = ({data, title}) => {
   if(!data)
     return <Empty />
 
-  console.log(data)
-  
+ 
   return (
     <div>
       <Card className='shadow-lg'>

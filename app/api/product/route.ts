@@ -9,9 +9,19 @@ import fs from "fs"
 import ProductModel from "../../../model/product.model";
 import ServerCatchError from "../../../Lib/server-catch-error";
 import { message } from "antd";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export const POST = async (req:NextRequest)=>{
     try{
+       
+        const session = await getServerSession(authOptions)
+        if(!session)
+            return res.json("Unauthorized",{status:401})
+        if(session.user.role !== "admin")
+            return res.json({message:"Unauthorized"},{status:401})
+
+        
 
         //  for file uploads
         const body = await req.formData()

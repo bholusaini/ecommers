@@ -48,6 +48,7 @@ const Products = () => {
       }
 
      await axios.post("/api/product",formData)
+     mutate(`/api/product/?page=${page}&limit=${limit}`)
     message.success("product create success fully")
     handleClose()
 
