@@ -1,16 +1,14 @@
 'use client'
-
+import ChildrenInterface from '@/interface/Children.interface'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import React, { FC } from 'react'
 import 'animate.css'
-
-import Link from 'next/link'
-import { LoginOutlined, ProfileOutlined, SettingOutlined, UserAddOutlined } from '@ant-design/icons'
-import { usePathname } from 'next/navigation'
-import ChildrenInterface from '../interface/Children.interface'
 import Logo from './shared/logo'
-import { Avatar, Dropdown } from 'antd'
-import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { LoginOutlined, ProfileOutlined, SettingOutlined, ShoppingCartOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons'
+import { usePathname } from 'next/navigation'
+import { Avatar, Badge, Dropdown, Tooltip } from 'antd'
+import { SessionProvider, signOut, useSession } from 'next-auth/react'
 
 const menus = [
   {
@@ -20,55 +18,78 @@ const menus = [
   {
     label: 'Products',
     href: '/products'
-  },
-  {
-    label: 'Carts',
-    href: '/carts'
-  },
-  {
-    label: 'Sign in',
-    href: '/login'
   }
 ]
-
-  const acountMenu = {
-    items: [
-      {
-        icon: <ProfileOutlined />,
-        label: <a>bk sarswal</a>,
-        key: 'fullname'
-      },
-      {
-        icon: <LoginOutlined />,
-        label: <a>Logout</a>,
-        key: 'logout'
-      },
-      {
-        icon: <SettingOutlined />,
-        label: <a>Settings</a>,
-        key: 'settings'
-      }
-    ]
-  }
 
 const Layout: FC<ChildrenInterface> = ({children}) => {
   const pathname = usePathname()
   const session = useSession()
- 
-  
+
+  console.log(session)
   const blacklists = [
     "/admin",
     "/login",
     "/signup",
-    "/user"
+    "/user",
+    "/auth-failed"
   ]
+
+  const userMenu = {
+    items: [
+      {
+        icon: <UserOutlined />,
+        label: <Link href="/user/orders" className='capitalize'>{session.data?.user.name}</Link>,
+        key: 'fullname'
+      },
+      {
+        icon: <SettingOutlined />,
+        label: <Link href="/user/settings">Settings</Link>,
+        key: 'settings'
+      },
+      {
+        icon: <LoginOutlined />,
+        label: <a onClick={()=>signOut()}>Logout</a>,
+        key: 'logout'
+      },
+    ]
+  }
+
+  const adminMenu = {
+    items: [
+      {
+        icon: <UserOutlined />,
+        label: <Link href="/user/orders" className='capitalize'>{session.data?.user.name}</Link>,
+        key: 'fullname'
+      },
+      {
+        icon: <SettingOutlined />,
+        label: <Link href="/user/settings">Settings</Link>,
+        key: 'settings'
+      },
+      {
+        icon: <LoginOutlined />,
+        label: <a onClick={()=>signOut()}>Logout</a>,
+        key: 'logout'
+      },
+    ]
+  }
+
+  const getMenu = (role: string)=>{
+    if(role === "user")
+      return userMenu
+
+    if(role === "admin")
+      return adminMenu
+
+    signOut()
+  }
 
   const isBlacklist = blacklists.some((path)=>pathname.startsWith(path))
 
   if(isBlacklist)
   return (
     <AntdRegistry>
-      <div>{children}</div>
+        <div>{children}</div>
     </AntdRegistry>
   )
 
@@ -76,7 +97,7 @@ const Layout: FC<ChildrenInterface> = ({children}) => {
     <AntdRegistry>
         <nav className='bg-white shadow-lg px-12 sticky top-0 left-0 flex justify-between items-center z-10'>
             <Logo />
-            <div className='flex items-center text-black '>
+            <div className='flex items-center gap-8'>
                 {
                   menus.map((item, index)=>(
                     <Link key={index} href={item.href} className='py-6 px-12 hover:bg-blue-500 hover:text-white'>
@@ -84,19 +105,35 @@ const Layout: FC<ChildrenInterface> = ({children}) => {
                     </Link>
                   ))
                 }
+
+              {
+                !session.data &&
+                <div className='animate__animated animate__fadeIn flex gap-8'>
+                  <Link href="/login" className='py-6 px-12 hover:bg-blue-500 hover:text-white'>Login</Link>
+
+                  <Link href="/signup" className='py-6 px-12 hover:bg-blue-500 hover:text-white bg-rose-500 text-white font-medium flex gap-2'>
+                    <UserAddOutlined />
+                    Sign up
+                  </Link>
+                </div>
+              }
             </div>
-            <Link href="/signup" className='py-6 px-12 hover:bg-blue-500 hover:text-white bg-rose-500 text-white font-medium'>
-              <UserAddOutlined className='mr-2' />
-              Sign up
-            </Link>
-               <div>
-              <Dropdown menu={acountMenu}>
-                <Avatar 
-                  size="large" 
-                  src="/images/avt.avif"  
-                />
-              </Dropdown>
-            </div>
+            {
+              session.data &&
+              <div className='flex items-center gap-8 animate__animated animate__fadeIn'>
+                <Tooltip title="Your carts">
+                  <Badge>
+                    <ShoppingCartOutlined className='text-3xl !text-slate-400' />
+                  </Badge>
+                </Tooltip>
+                <Dropdown menu={getMenu(session.data.user.role)}>
+                  <Avatar 
+                    size="large" 
+                    src="/images/avt.avif"  
+                  />
+                </Dropdown>
+              </div>
+            }
         </nav>
         <div className='w-9/12 mx-auto py-24'>{children}</div>
         <footer className='bg-zinc-900 h-[450px] flex items-center justify-center text-white text-4xl '>
