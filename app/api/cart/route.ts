@@ -37,13 +37,20 @@ export const POST = async (req: NextRequest)=>{
 
 export const GET = async (req: NextRequest)=>{
     try {
+        
         const session = await getServerSession(authOptions)
         if(!session)
             return res.json({message: 'Unauthorized'}, {status: 401})
-
+        
         if(session.user.role !== "user")
             return res.json({message: 'Unauthorized'}, {status: 401})
-
+        
+        const {searchParams} = new URL(req.url)
+        if(searchParams.get("count"))
+        {
+            const count  = await CartModel.countDocuments({user:session.user.id})
+            return res.json({count})
+        }
         const carts = await CartModel.find({user: session.user.id}).populate('product')
         return res.json(carts)
     }

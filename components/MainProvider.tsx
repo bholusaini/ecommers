@@ -4,6 +4,7 @@ import React, { Children, FC } from 'react'
 import Layout from './Layout'
 import ChildrenInterface from '../interface/Children.interface'
 
+
 const MainProvider: FC<ChildrenInterface> = ({children}) => {
   return (
     <div>
