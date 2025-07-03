@@ -14,6 +14,7 @@ const Carts = () => {
 
  const {data,error,isLoading} = useSWR("/api/cart",fetecher)
 
+
  if(isLoading)
   return <Skeleton active/>
 
@@ -50,16 +51,35 @@ const Carts = () => {
   }
   }
  
-  const getTotalAmount = (data:any )=>{
+  const getTotalAmount = ()=>{
     let sum = 0
 
     for(let item of data){
         const amount = priceCalculate(item.product.price,item.product.discount)*item.qnt
        sum = sum+amount
+    
        
     }
     return sum
+  }   
+
+  const  payNow =   async ()=>{
+     try{
+      
+      const payload = {
+        amount:getTotalAmount()
+      }
+
+      const {data} =  await axios.post("/api/razorpay/order", payload)
+      console.log(data)
+     }
+     catch(err)
+     {
+       ClientCatchError(err)
+     }
   }
+
+
 
   if(data.length === 0)
     return <Empty/>
@@ -119,8 +139,8 @@ const Carts = () => {
       }
 
       <div className='flex justify-end items-center gap-6'>
-        <h1 className='text-2xl font-semibold'>Total payable amount - ₹{getTotalAmount(data).toLocaleString()}</h1>
-        <Button size='large' type='primary'>Pay now</Button>
+        <h1 className='text-2xl font-semibold'>Total payable amount - ₹{getTotalAmount().toLocaleString()}</h1>
+        <Button size='large' type='primary' onClick={payNow }>Pay now</Button>
       </div>
         
      
