@@ -94,11 +94,9 @@ const Carts = () => {
   const  payNow =   async ()=>{
      try{
       if(!session.data)
-        throw new Error("session not inislized yet")
-         
+        throw new Error("session not inislized yet")       
 
-      console.log(getOrderPayload())
-      return
+    
       const payload = {
         amount:getTotalAmount()
       }
