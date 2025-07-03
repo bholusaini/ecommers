@@ -8,11 +8,19 @@ import priceCalculate from '@/Lib/price-calculate'
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import ClientCatchError from '@/Lib/client-catch-error'
 import axios from 'axios'
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+import { useSession } from 'next-auth/react'
+import { extend } from 'lodash'
+
+interface ModifiesRazorpayInterface extends RazorpayOrderOptions {
+  notes:any
+}
 
 const Carts = () => {
   const [loading,setLoading] = useState({state:false,index:0,ButtonIndex:0})
-
- const {data,error,isLoading} = useSWR("/api/cart",fetecher)
+  const {data,error,isLoading} = useSWR("/api/cart",fetecher)
+  const { Razorpay } = useRazorpay();
+  const session = useSession()
 
 
  if(isLoading)
@@ -63,15 +71,69 @@ const Carts = () => {
     return sum
   }   
 
+  const getOrderPayload = ()=>{
+    const products = []
+    const prices = []
+    const discounts = []
+
+    for(let item of data){
+      products.push(item.product._id)
+      prices.push(item.product.price)
+      discounts.push(item.product.discount)
+    }
+
+    return (
+      {
+        products,
+        prices,
+        discounts
+      }
+    )
+  }
+
   const  payNow =   async ()=>{
      try{
-      
+      if(!session.data)
+        throw new Error("session not inislized yet")
+         
+
+      console.log(getOrderPayload())
+      return
       const payload = {
         amount:getTotalAmount()
       }
 
       const {data} =  await axios.post("/api/razorpay/order", payload)
       console.log(data)
+
+      const options:ModifiesRazorpayInterface = {
+        name:"Ecom shop ",
+        description:"bulk sfs",
+        amount:data.amount,
+        order_id:data.id,
+        key:process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+        currency:'INR',
+        prefill:{
+          name:session.data.user.name as string,
+          email:session.data.user.email as string
+        },
+        notes:{
+          name:session.data.user.name as string,
+          user:session.data.user.id,
+          ...getOrderPayload()
+        },
+
+        handler:()=>{
+          console.log("success")
+        }
+      }
+
+      const rzp = new Razorpay(options)
+      rzp.open()
+
+      rzp.on("payment.failed",()=>{
+        console.log("failed")
+      })
      }
      catch(err)
      {
@@ -147,7 +209,4 @@ const Carts = () => {
     </div>
   )
 }
-
-
-
 export default Carts
