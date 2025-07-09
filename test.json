@@ -1,1 +1,56 @@
-""
+{
+  "entity": "event",
+  "account_id": "acc_QkXqvlir4p6Kmk",
+  "event": "payment.captured",
+  "contains": [
+    "payment"
+  ],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_QqsMxMzGke2vGF",
+        "entity": "payment",
+        "amount": 715500,
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "order_QqsMjag6Fjh0pm",
+        "invoice_id": null,
+        "international": false,
+        "method": "upi",
+        "amount_refunded": 0,
+        "refund_status": null,
+        "captured": true,
+        "description": "bulk sfs",
+        "card_id": null,
+        "bank": null,
+        "wallet": null,
+        "vpa": "success@razorpay",
+        "email": "saini@gmail.com",
+        "contact": "+919999999999",
+        "notes": {
+          "name": "bksarswal",
+          "user": "685bdc0e00acd2727f712282",
+          "orders": "{\"products\":[\"6843042beb0b3a3998417e92\",\"68430414eb0b3a3998417e8e\",\"68430404eb0b3a3998417e8c\",\"684303c9eb0b3a3998417e82\"],\"prices\":[1200,1500,3000,2000],\"discounts\":[10,5,5,10]}"
+        },
+        "fee": 16886,
+        "tax": 2576,
+        "error_code": null,
+        "error_description": null,
+        "error_source": null,
+        "error_step": null,
+        "error_reason": null,
+        "acquirer_data": {
+          "rrn": "856862586136",
+          "upi_transaction_id": "8A9C93C63C38C04295B6A482242B1E1D"
+        },
+        "created_at": 1752043807,
+        "reward": null,
+        "upi": {
+          "vpa": "success@razorpay"
+        },
+        "base_amount": 715500
+      }
+    }
+  },
+  "created_at": 1752043808
+}

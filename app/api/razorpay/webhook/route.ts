@@ -4,7 +4,7 @@ import fs from "fs"
 import { message } from "antd";
 
 export const POST = async (req:NextRequest)=>{
-    const body = await req.text()
+    const body = await req.json()
     fs.writeFileSync("test.json",JSON.stringify(body,null,2))
     console.log("Request resived")
     return res.json({message:"success jghghf"})
