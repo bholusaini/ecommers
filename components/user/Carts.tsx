@@ -10,7 +10,7 @@ import ClientCatchError from '@/Lib/client-catch-error'
 import axios from 'axios'
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { useSession } from 'next-auth/react'
-import { extend } from 'lodash'
+
 
 interface ModifiesRazorpayInterface extends RazorpayOrderOptions {
   notes:any
@@ -118,7 +118,7 @@ const Carts = () => {
         notes:{
           name:session.data.user.name as string,
           user:session.data.user.id,
-          ...getOrderPayload()
+          orders:JSON.stringify(getOrderPayload())
         },
 
         handler:()=>{
