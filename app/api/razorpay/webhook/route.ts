@@ -1,46 +1,127 @@
+import { NextRequest, NextResponse as res } from "next/server";
 
-import { NextRequest ,NextResponse as res } from "next/server";
-import fs from "fs"
-import crypto from "crypto"
-import { message } from "antd";
+import crypto from 'crypto'
+
+import fs from 'fs'
+import moment from "moment";
+import path from 'path'
+import OrderModel from "../../../../model/order.model";
+import PaymentModel from "../../../../model/payment.model";
 import ServerCatchError from "../../../../Lib/server-catch-error";
+const root = process.cwd()
+
+interface CreateOrderInterface {
+    user: string
+    products: string[]
+    discounts: string[]
+    prices: string[]
+}
+
+interface CreatePaymentInterface {
+    user: string
+    paymentId: string
+    order: string
+    vendor?: 'razorpay' | 'stripe'
+}
 
 
-export const POST = async (req:NextRequest)=>{
 
-   try{
-     const signature = req.headers.get("x-razorpay-signature")
+
+const createOrder = async (order: CreateOrderInterface)=>{
+    try {
+        const {_id} = await OrderModel.create(order)
+        return _id
+    }
+    catch(err)
+    {
+        if(err instanceof Error)
+    {
+        const dateTime = moment().format('DD-MM-YYYY_hh-mm-ss_A');
+        const filePath = path.join(root, 'logs', `order-error-${dateTime}.txt`);
+        fs.writeFileSync(filePath, err.message)
+        return false
+    }
+    }
+}
+
+
+
+const createPayment = async (payment: CreatePaymentInterface)=>{
+    try {
+        await PaymentModel.create(payment)
+        return true
+    }
+    catch(err)
+    {
+        if(err instanceof Error)
+    {
+        const dateTime = moment().format('DD-MM-YYYY_hh-mm-ss_A');
+        const filePath = path.join(root, 'logs', `payment-error-${dateTime}.txt`);
+        fs.writeFileSync(filePath, err.message)
+        return false
+    }
+    }
+}
+
+export const POST = async (req: NextRequest)=>{
+    try {
+        const signature = req.headers.get('x-razorpay-signature')
         if(!signature)
-           return res.json({message:"invalid signature"},{status:400})
-    const body = await req.json()
+            return res.json({message: 'Invalid signature'}, {status: 400})
 
-    
-   const mySignature =  crypto.createHmac("sha256",process.env.RAZORPAY_WEBHHOK_SECRET!)
-    .update(JSON.stringify(body))
-    .digest("hex")
-    
-    if(signature !== mySignature)
-        return res.json({message:"invalid signature"},{status:400})
+        const body = await req.json()
+        const user = body.payload.payment.entity.notes.user
+        const paymentId = body.payload.payment.entity.id
+        const orders = JSON.parse(body.payload.payment.entity.notes.orders)
 
-     if(body.event === "payment.authorized" && process.env.NODE_ENV == "development")
-     {
-        console.log("payment success")
-     }
+        const mySignature = crypto.createHmac('sha256', process.env.RAZORPAY_WEBHHOK_SECRET!)
+        .update(JSON.stringify(body))
+        .digest('hex')
 
-     if(body.event === "payment.captured" )
-     {
-        console.log("payment success")
-     }
+        if(signature !== mySignature)
+            return res.json({message: 'Invalid signature'}, {status: 400})
 
-     if(body.event === "payment.failed" )
-     {
+
+       if(body.event === "payment.authorized" && process.env.NODE_ENV === "development")
+       {
+            const orderId = await createOrder({user, ...orders})
+
+            if(!orderId)
+                return res.json({message: 'Failed to create order'}, {status: 424})
+
+            const payment = await createPayment({user, order: orderId, paymentId})
+            
+            if(!payment)
+                return res.json({message: 'Failed to create payment'}, {status: 424})          
+
+            return res.json({success: true})
+       }
+
+       if(body.event === "payment.captured")
+       {
+            const orderId = await createOrder({user, ...orders})
+
+            if(!orderId)
+                return res.json({message: 'Failed to create order'}, {status: 424})
+
+            const payment = await createPayment({user, order: orderId, paymentId})
+            
+            if(!payment)
+                return res.json({message: 'Failed to create payment'}, {status: 424})
+
+            return res.json({success: true})
+       }
+
+       if(body.event === "payment.failed")
+       {
         console.log("payment failed")
-     }
-     return  res.json({ message: "webhook received" })
-   }
-   catch(err)
-   {
-    return ServerCatchError(err)
-   }
+       }
 
-} 
+       return res.json({success: true})
+    }
+    catch(err)
+    {
+        console.log(err)
+        return ServerCatchError(err)
+    }
+}

@@ -1,7 +1,7 @@
 {
   "entity": "event",
   "account_id": "acc_QkXqvlir4p6Kmk",
-  "event": "payment.captured",
+  "event": "payment.authorized",
   "contains": [
     "payment"
   ],
@@ -47,8 +47,8 @@
         "reward": null,
         "upi": {
           "vpa": "success@razorpay"
-        },
-        "base_amount": 715500
+        }
+       
       }
     }
   },
