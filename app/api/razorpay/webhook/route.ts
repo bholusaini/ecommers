@@ -24,8 +24,32 @@ interface CreatePaymentInterface {
     vendor?: 'razorpay' | 'stripe'
 }
 
+interface DeleteCartsInterface {
+    user: string
+    productts:string[]
+}
 
+const createLog = (err: unknown, service: string)=>{
+    if(err instanceof Error)
+    {
+        const dateTime = moment().format('DD-MM-YYYY_hh-mm-ss_A');
+        const filePath = path.join(root, 'logs', `order-error-${dateTime}.txt`);
+        fs.writeFileSync(filePath, err.message)
+        return false
+    }
+}
 
+const deleteCarts = async (carts:DeleteCartsInterface)=>{
+    try{
+
+        const query = carts.productts.map((id)=>({user:carts.user, products:id}))
+        
+    }
+    catch(err)
+    {
+
+    }
+}
 
 const createOrder = async (order: CreateOrderInterface)=>{
     try {
@@ -34,13 +58,7 @@ const createOrder = async (order: CreateOrderInterface)=>{
     }
     catch(err)
     {
-        if(err instanceof Error)
-    {
-        const dateTime = moment().format('DD-MM-YYYY_hh-mm-ss_A');
-        const filePath = path.join(root, 'logs', `order-error-${dateTime}.txt`);
-        fs.writeFileSync(filePath, err.message)
-        return false
-    }
+     return createLog(err,"order")
     }
 }
 
@@ -53,13 +71,7 @@ const createPayment = async (payment: CreatePaymentInterface)=>{
     }
     catch(err)
     {
-        if(err instanceof Error)
-    {
-        const dateTime = moment().format('DD-MM-YYYY_hh-mm-ss_A');
-        const filePath = path.join(root, 'logs', `payment-error-${dateTime}.txt`);
-        fs.writeFileSync(filePath, err.message)
-        return false
-    }
+        return createLog(err,"payment")
     }
 }
 
@@ -84,7 +96,7 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.authorized" && process.env.NODE_ENV === "development")
        {
-            const orderId = await createOrder({user, ...orders})
+            const orderId = await createOrder({user , ...orders})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})

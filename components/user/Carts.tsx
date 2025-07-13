@@ -1,7 +1,7 @@
 'use client'
 import fetecher from '@/Lib/fetecher'
 import { Button, Card, Empty, Image, Skeleton, Space } from 'antd'
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 import useSWR, { mutate } from 'swr'
 import Errors from '../shared/Error'
 import priceCalculate from '@/Lib/price-calculate'
@@ -10,13 +10,16 @@ import ClientCatchError from '@/Lib/client-catch-error'
 import axios from 'axios'
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import { useSession } from 'next-auth/react'
+import Pay from '../shared/Pay'
+import { FS } from 'next/dist/build/turborepo-access-trace/types'
 
 
 interface ModifiesRazorpayInterface extends RazorpayOrderOptions {
   notes:any
 }
 
-const Carts = () => {
+
+const Carts  = () => {
   const [loading,setLoading] = useState({state:false,index:0,ButtonIndex:0})
   const {data,error,isLoading} = useSWR("/api/cart",fetecher)
   const { Razorpay } = useRazorpay();
@@ -200,7 +203,11 @@ const Carts = () => {
 
       <div className='flex justify-end items-center gap-6'>
         <h1 className='text-2xl font-semibold'>Total payable amount - ₹{getTotalAmount().toLocaleString()}</h1>
-        <Button size='large' type='primary' onClick={payNow }>Pay now</Button>
+        <Pay 
+        data={data}
+        onSuccess={(x)=>console.log(x)}
+        onFaild={(x)=>console.log(x)}
+        />
       </div>
         
      
