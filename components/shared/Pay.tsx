@@ -17,20 +17,35 @@ interface ModifiesRazorpayInterface extends RazorpayOrderOptions {
 }
 
 interface PayInterface{
-  data:any
-  onSuccess?:(payload:any)=>void
-  onFaild?:(payload:any)=>void
+  product:any
+  onSuccess?:(payload:PaymentSuccessInterface)=>void
+  onFaild?:(payload:PaymentFaildInterface)=>void
 }
 
-const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
-  const [loading,setLoading] = useState({state:false,index:0,ButtonIndex:0})
+interface PaymentSuccessInterface {
+  razorpay_order_id :string
+razorpay_payment_id :string
+razorpay_signature:string
 
-  const { Razorpay } = useRazorpay();
-  const session = useSession()
+}
 
+interface PaymentFaildInterface {
+  reason:string
+  order_id:string
+  payment_id:string
 
+}
 
+const Pay :FC<PayInterface> = ({product,onSuccess,onFaild}) => {
  
+console.log(product);
+  const [loading,setLoading] = useState({state:false,index:0,ButtonIndex:0})
+  
+  const { Razorpay } = useRazorpay();
+  const session = useSession() 
+  const isArr = Array.isArray(product)
+
+ console.log(isArr);
 
   const updateQnt = async (num:number,id:string,index:number,ButtonIndex:number)=>{
   try{
@@ -64,7 +79,7 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
   const getTotalAmount = ()=>{
     let sum = 0
 
-    for(let item of data){
+    for(let item of product){
         const amount = priceCalculate(item.product.price,item.product.discount)*item.qnt
        sum = sum+amount
     
@@ -78,7 +93,17 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
     const prices = []
     const discounts = []
 
-    for(let item of data){
+      if(!isArr)
+    {
+      return {
+        products: [product._id],
+        prices: [product.price],
+        discounts: [product.discount],
+        quantities: [1]
+      }
+    }
+
+    for(let item of product){
       products.push(item.product._id)
       prices.push(item.product.price)
       discounts.push(item.product.discount)
@@ -94,12 +119,12 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
   }
 
 
-  const handleOnSuccess = (payload:any)=>{
+  const handleOnSuccess = (payload:PaymentSuccessInterface)=>{
 
     if(onSuccess)
         return onSuccess(payload)
 
-    console.log(payload);
+    return null
   }
 
   const  payNow =   async ()=>{
@@ -107,9 +132,8 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
       if(!session.data)
         throw new Error("session not inislized yet")       
 
-    
       const payload = {
-        amount:getTotalAmount()
+        amount: isArr ? getTotalAmount() : product.price
       }
 
       const {data} =  await axios.post("/api/razorpay/order", payload)
@@ -132,13 +156,28 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
           orders:JSON.stringify(getOrderPayload())
         },
 
-        handler:onSuccess
+        handler:handleOnSuccess
       }
 
       const rzp = new Razorpay(options)
       rzp.open()
-      if(onFaild)
-      rzp.on("payment.failed",onFaild)
+     
+
+      rzp.on("payment.failed",(err:any)=>{
+        if(!onFaild)
+          return
+        
+
+        const payload :PaymentFaildInterface ={
+          reason:err.reason,
+          order_id:err.metadata.order_id,
+          payment_id:err.medata.payment_id
+        }
+          onFaild(payload)
+
+      
+    
+      })
      }
      catch(err)
      {
@@ -148,7 +187,7 @@ const Pay :FC<PayInterface> = ({data,onSuccess,onFaild}) => {
 
 
 
-  if(data.length === 0)
+  if(product.length === 0)
     return <Empty/>
     
   return (

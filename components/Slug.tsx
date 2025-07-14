@@ -6,12 +6,14 @@ import Image from 'next/image'
 import React, { FC } from 'react'
 import '@ant-design/v5-patch-for-react-19';
 import priceCalculate from '../Lib/price-calculate'
+import Pay from './shared/Pay'
 
 interface TitleInterface extends DataInterface {
   title: string
 }
 
 const Slug: FC<TitleInterface> = ({data, title}) => {
+
   if(!data)
     return <Empty />
 
@@ -35,7 +37,8 @@ const Slug: FC<TitleInterface> = ({data, title}) => {
                 <del className='text-slate-400'>₹{data.price}</del>
                 <h1 className='text-rose-500'>({data.discount}% Discount)</h1>
               </div>
-              <Button type="primary" className='!bg-green-500 !font-medium !px-24 !py-6 !text-xl !font-medium'>Buy now</Button>
+             
+             <Pay product={data}/>
           </div>
         </div>
       </Card>

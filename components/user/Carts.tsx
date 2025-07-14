@@ -204,7 +204,7 @@ const Carts  = () => {
       <div className='flex justify-end items-center gap-6'>
         <h1 className='text-2xl font-semibold'>Total payable amount - ₹{getTotalAmount().toLocaleString()}</h1>
         <Pay 
-        data={data}
+        product={data}
         onSuccess={(x)=>console.log(x)}
         onFaild={(x)=>console.log(x)}
         />

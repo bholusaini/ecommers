@@ -1,7 +1,7 @@
 'use client'
 
 import { ShoppingCartOutlined } from '@ant-design/icons'
-import { Button, Card } from 'antd'
+import { Button, Card, message } from 'antd'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { FC, useEffect, useState } from 'react'
@@ -11,25 +11,29 @@ import { getSession } from 'next-auth/react'
 
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { mutate } from 'swr'
 
 const Products: FC<DataInterface> = ({data}) => {
   const [isBrowser, setIsBrowser] = useState(false)
   const router = useRouter()
 
-  const addToCart = async (id:string)=>{
-    try{
+
+  const addToCart = async (id: string)=>{
+    try {
       const session = await getSession()
       if(!session)
         return router.push("/login")
 
-      const {data} = await axios.post("/api/cart",{product:id})
-      console.log(data)
+      await axios.post("/api/cart", {product: id})
+      message.success("Product added to cart")
+      mutate('/api/cart?count=true')
     }
     catch(err)
     {
       ClientCatchError(err)
     }
   }
+
   useEffect(()=>{
     setIsBrowser(true)
   }, [])
@@ -42,7 +46,7 @@ const Products: FC<DataInterface> = ({data}) => {
         {
           data.data.map((item: any, index: number)=>(
             <Card 
-              key={item._id}
+              key={index}
               hoverable
               cover={
                 <div className='relative w-full h-[180px]'>
@@ -52,6 +56,7 @@ const Products: FC<DataInterface> = ({data}) => {
                     alt={item.title} 
                     className='rounded-t-lg object-cover'
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority
                   />
                 </div>
               }
@@ -71,7 +76,7 @@ const Products: FC<DataInterface> = ({data}) => {
                 }
               />
 
-              <Button icon={<ShoppingCartOutlined />} type="primary" className='!w-full !mt-5 !mb-2' onClick={()=>addToCart(item._id)}>Add to cart</Button>
+              <Button onClick={()=>addToCart(item._id)} icon={<ShoppingCartOutlined />} type="primary" className='!w-full !mt-5 !mb-2'>Add to cart</Button>
               <Link href={`/products/${item.title.toLowerCase().split(" ").join("-")}`}>
                 <Button type="primary" danger className='!w-full'>Buy now</Button>
               </Link>
