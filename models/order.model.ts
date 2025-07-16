@@ -1,8 +1,12 @@
 import mongoose, {Schema, model, models} from 'mongoose'
 import UserModel from './user.model'
 import ProductModel from './product.model'
+import shortid from 'shortid'
 
 const orderSchema = new Schema({
+    orderId: {
+        type: String
+    },
     user: {
         type: mongoose.Types.ObjectId,
         ref: UserModel,
@@ -21,12 +25,21 @@ const orderSchema = new Schema({
         type: Number,
         required: true
     }],
+    quantities: [{
+        type: Number,
+        required: true
+    }],
     status: {
         type: String,
         default: 'processing',
         enum: ['processing', 'dispatched', 'returned']
     }
 }, {timestamps: true})
+
+orderSchema.pre('save', function(next){
+    this.orderId = shortid.generate().toUpperCase()
+    next()
+})
 
 const OrderModel = models.Order || model("Order", orderSchema)
 export default OrderModel

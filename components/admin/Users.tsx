@@ -3,12 +3,11 @@ import { Card, Skeleton } from 'antd'
 import React from 'react'
 import Image from 'next/image'
 import useSWR from 'swr'
-
+import fetcher from '@/lib/fetcher'
 import moment from 'moment'
-import fetecher from '../../Lib/fetecher'
 
 const Users = () => {
-  const {data, error, isLoading} = useSWR('/api/user', fetecher)
+  const {data, error, isLoading} = useSWR('/api/user', fetcher)
 
   if(isLoading)
     return <Skeleton active />

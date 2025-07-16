@@ -1,17 +1,16 @@
 'use client'
-import ChildrenInterface from '@/interface/Children.interface'
+import ChildrenInterface from '@/interface/children.interface'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
-import React, { FC, useEffect } from 'react'
+import React, { FC } from 'react'
 import 'animate.css'
-import Logo from './shared/logo'
+import Logo from './shared/Logo'
 import Link from 'next/link'
 import { LoginOutlined, ProfileOutlined, SettingOutlined, ShoppingCartOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons'
 import { usePathname } from 'next/navigation'
-import { Avatar, Badge, Dropdown, message, Tooltip } from 'antd'
+import { Avatar, Badge, Dropdown, Tooltip } from 'antd'
 import { SessionProvider, signOut, useSession } from 'next-auth/react'
-import useSWR, { mutate } from 'swr'
-import fetecher from '@/Lib/fetecher'
-import '@ant-design/v5-patch-for-react-19';
+import useSWR from 'swr'
+import fetcher from '@/lib/fetcher'
 
 const menus = [
   {
@@ -25,12 +24,10 @@ const menus = [
 ]
 
 const Layout: FC<ChildrenInterface> = ({children}) => {
-
-const {data}  = useSWR('/api/cart?count=true',fetecher)
-
+  const {data} = useSWR('/api/cart?count=true', fetcher)
   const pathname = usePathname()
   const session = useSession()
-
+  
   const blacklists = [
     "/admin",
     "/login",
@@ -127,14 +124,14 @@ const {data}  = useSWR('/api/cart?count=true',fetecher)
               session.data &&
               <div className='flex items-center gap-8 animate__animated animate__fadeIn'>
                 {
-                  session.data.user.role === "user" && 
-                    <Tooltip title="Your carts">
-                      <Link href='/user/carts'>
-                        <Badge count= {data && data.count}>
-                          <ShoppingCartOutlined className='text-3xl !text-slate-400' />
-                        </Badge>
-                      </Link>
-                    </Tooltip>
+                  session.data.user.role === "user" &&
+                  <Tooltip title="Your carts">
+                    <Link href="/user/carts">
+                      <Badge count={data && data.count}>
+                        <ShoppingCartOutlined className='text-3xl !text-slate-400' />
+                      </Badge>
+                    </Link>
+                  </Tooltip>
                 }
                 <Dropdown menu={getMenu(session.data.user.role)}>
                   <Avatar 

@@ -1,15 +1,14 @@
 'use client'
-
+import DataInterface from '@/interface/data.interface'
+import clientCatchError from '@/lib/client-catch-error'
 import { ShoppingCartOutlined } from '@ant-design/icons'
 import { Button, Card, message } from 'antd'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { FC, useEffect, useState } from 'react'
-import DataInterface from '../interface/data.interface'
-import ClientCatchError from '@/Lib/client-catch-error'
+import '@ant-design/v5-patch-for-react-19';
 import { getSession } from 'next-auth/react'
-
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { mutate } from 'swr'
 
@@ -30,7 +29,7 @@ const Products: FC<DataInterface> = ({data}) => {
     }
     catch(err)
     {
-      ClientCatchError(err)
+      clientCatchError(err)
     }
   }
 

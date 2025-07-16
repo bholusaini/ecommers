@@ -1,16 +1,13 @@
-import React, { FC } from 'react'
-import AdminLayout from '../../components/admin/Layout'
-import ChildrenInterface from '../../interface/Children.interface'
+import AdminLayout from '@/components/admin/AdminLayout'
+import ChildrenInterface from '@/interface/children.interface'
+import { FC } from 'react'
 
-const layout :FC <ChildrenInterface> = ({children}) => {
+const AdminLayoutRouter: FC<ChildrenInterface> = ({children}) => {
   return (
-    <div>
-     
-     <AdminLayout>
-        {children}
-     </AdminLayout>
-    </div>
+    <AdminLayout>
+      {children}
+    </AdminLayout>
   )
 }
 
-export default layout
+export default AdminLayoutRouter

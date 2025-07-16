@@ -1,13 +1,12 @@
 const db = `${process.env.DB_URL}/${process.env.DB_NAME}`
-
+import serverCatchError from "@/lib/server-catch-error";
+import OrderModel from "@/models/order.model";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 mongoose.connect(db)
 
 import { NextRequest, NextResponse as res } from "next/server"
 import { authOptions } from "../auth/[...nextauth]/route";
-import OrderModel from "@/model/order.model";
-import ServerCatchError from "@/Lib/server-catch-error";
 
 export const POST = async (req: NextRequest)=>{
     try {
@@ -26,7 +25,7 @@ export const POST = async (req: NextRequest)=>{
     }
     catch(err)
     {
-        return ServerCatchError(err)
+        return serverCatchError(err)
     }
 }
 
@@ -41,17 +40,17 @@ export const GET = async (req: NextRequest)=>{
         const id = session.user.id
 
         if(role === "user")
-            orders = await OrderModel.find({user: id}).sort({createdAt: -1}).populate("product")
+            orders = await OrderModel.find({user: id}).sort({createdAt: -1}).populate("products")
 
         if(role === "admin")
             orders = await OrderModel.find().sort({createdAt: -1})
-            .populate("user", "fullname email mobile")
-            .populate("product")
+            .populate("user", "fullname email mobile address")
+            .populate("products")
 
         return res.json(orders)
     }
     catch(err)
     {
-        return ServerCatchError(err)
+        return serverCatchError(err)
     }
 }

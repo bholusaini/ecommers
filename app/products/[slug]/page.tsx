@@ -1,7 +1,6 @@
 import Slug from '@/components/Slug'
-
+import SlugInterface from '@/interface/slug.interface'
 import { FC } from 'react'
-import SlugInterface from '../../../interface/Slug.interface'
 
 const SlugRouter: FC<SlugInterface> = async ({params}) => {
   const slugRes = await fetch(`${process.env.SERVER}/api/product/${params.slug}`)

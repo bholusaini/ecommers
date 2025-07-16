@@ -4,6 +4,7 @@ import { FC } from 'react';
 import {
   CreditCardOutlined,
   LoginOutlined,
+  MailOutlined,
   ProfileOutlined,
   ReconciliationOutlined,
   SettingOutlined,
@@ -12,9 +13,10 @@ import {
 } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Dropdown, Layout, Menu, theme } from 'antd';
 import Link from 'next/link';
+import ChildrenInterface from '@/interface/children.interface';
+import Logo from '../shared/Logo';
 import { usePathname } from 'next/navigation';
-import ChildrenInterface from '../../interface/Children.interface';
-import Logo from '../shared/logo';
+import { signOut } from 'next-auth/react';
 
 const { Header, Content, Sider } = Layout;
 
@@ -35,8 +37,8 @@ export const getBreadCrumbs = (pathname: string)=>{
       title: item
     }))
     return bread
-  } 
-  
+}
+
 const AdminLayout: FC<ChildrenInterface> = ({children}) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -67,27 +69,19 @@ const AdminLayout: FC<ChildrenInterface> = ({children}) => {
     }
   ]
 
+  const logout = async ()=>{
+      await signOut()
+  }
+
   const acountMenu = {
     items: [
       {
-        icon: <ProfileOutlined />,
-        label: <a>bk sarswal</a>,
-        key: 'fullname'
-      },
-      {
         icon: <LoginOutlined />,
-        label: <a>Logout</a>,
+        label: <a onClick={logout}>Logout</a>,
         key: 'logout'
-      },
-      {
-        icon: <SettingOutlined />,
-        label: <a>Settings</a>,
-        key: 'settings'
       }
     ]
   }
-
-
 
   return (
     <Layout hasSider>

@@ -1,23 +1,23 @@
 'use client'
 import DataInterface from '@/interface/data.interface'
-
-import { Button, Card, Empty } from 'antd'
+import priceCalculate from '@/lib/price-calculate'
+import { Card, Empty } from 'antd'
 import Image from 'next/image'
 import React, { FC } from 'react'
 import '@ant-design/v5-patch-for-react-19';
-import priceCalculate from '../Lib/price-calculate'
 import Pay from './shared/Pay'
+import { useRouter } from 'next/navigation'
 
 interface TitleInterface extends DataInterface {
   title: string
 }
 
 const Slug: FC<TitleInterface> = ({data, title}) => {
+  const router = useRouter()
 
   if(!data)
     return <Empty />
-
- 
+  
   return (
     <div>
       <Card className='shadow-lg'>
@@ -37,8 +37,13 @@ const Slug: FC<TitleInterface> = ({data, title}) => {
                 <del className='text-slate-400'>₹{data.price}</del>
                 <h1 className='text-rose-500'>({data.discount}% Discount)</h1>
               </div>
-             
-             <Pay product={data}/>
+              <div className='w-[200px]'>
+                <Pay 
+                  title='Buy now'
+                  product={data} 
+                  onSuccess={()=>router.push('/user/orders')}
+                />
+              </div>
           </div>
         </div>
       </Card>

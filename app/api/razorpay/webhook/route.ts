@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse as res } from "next/server";
-
+import serverCatchError from "@/lib/server-catch-error";
 import crypto from 'crypto'
-
+import OrderModel from "@/models/order.model";
+import PaymentModel from "@/models/payment.model";
 import fs from 'fs'
 import moment from "moment";
 import path from 'path'
-import OrderModel from "../../../../model/order.model";
-import PaymentModel from "../../../../model/payment.model";
-import ServerCatchError from "../../../../Lib/server-catch-error";
+import CartModel from "@/models/cart.model";
 const root = process.cwd()
 
 interface CreateOrderInterface {
@@ -26,7 +25,7 @@ interface CreatePaymentInterface {
 
 interface DeleteCartsInterface {
     user: string
-    productts:string[]
+    products: string[]
 }
 
 const createLog = (err: unknown, service: string)=>{
@@ -39,18 +38,6 @@ const createLog = (err: unknown, service: string)=>{
     }
 }
 
-const deleteCarts = async (carts:DeleteCartsInterface)=>{
-    try{
-
-        const query = carts.productts.map((id)=>({user:carts.user, products:id}))
-        
-    }
-    catch(err)
-    {
-
-    }
-}
-
 const createOrder = async (order: CreateOrderInterface)=>{
     try {
         const {_id} = await OrderModel.create(order)
@@ -58,11 +45,21 @@ const createOrder = async (order: CreateOrderInterface)=>{
     }
     catch(err)
     {
-     return createLog(err,"order")
+        return createLog(err, "order")
     }
 }
 
-
+const deleteCarts = async (carts: DeleteCartsInterface)=>{
+    try {
+        const query = carts.products.map((id)=>({user: carts.user, product: id}))
+        await CartModel.deleteMany({$or: query})
+        return true
+    }
+    catch(err)
+    {
+        return createLog(err, "delete-cart")
+    }
+}
 
 const createPayment = async (payment: CreatePaymentInterface)=>{
     try {
@@ -71,7 +68,7 @@ const createPayment = async (payment: CreatePaymentInterface)=>{
     }
     catch(err)
     {
-        return createLog(err,"payment")
+        return createLog(err, "payment")
     }
 }
 
@@ -96,7 +93,7 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.authorized" && process.env.NODE_ENV === "development")
        {
-            const orderId = await createOrder({user , ...orders})
+            const orderId = await createOrder({user, ...orders})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})
@@ -104,7 +101,9 @@ export const POST = async (req: NextRequest)=>{
             const payment = await createPayment({user, order: orderId, paymentId})
             
             if(!payment)
-                return res.json({message: 'Failed to create payment'}, {status: 424})          
+                return res.json({message: 'Failed to create payment'}, {status: 424})
+
+            await deleteCarts({user, products: orders.products})
 
             return res.json({success: true})
        }
@@ -134,6 +133,6 @@ export const POST = async (req: NextRequest)=>{
     catch(err)
     {
         console.log(err)
-        return ServerCatchError(err)
+        return serverCatchError(err)
     }
 }

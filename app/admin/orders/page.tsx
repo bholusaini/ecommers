@@ -1,11 +1,9 @@
-import Order from "../../../components/admin/orders/Order"
+import Orders from "@/components/admin/Orders";
 
-const OrderRouter = () => {
+const OrdersRouter = ()=>{
   return (
-    <div>
-       <Order/>
-    </div>
+    <Orders />
   )
 }
 
-export default OrderRouter
+export default OrdersRouter

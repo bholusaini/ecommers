@@ -1,15 +1,12 @@
+import { NextResponse  as res} from "next/server"
 
-import { NextResponse as res} from "next/server"
+const serverCatchError = (err: unknown, status: number = 500)=>{
+    if(err instanceof Error)
+    {
+        return res.json({message: err.message}, {status})
+    }
 
-const ServerCatchError = (err:unknown,status:number=500 )=>{
-
- if (err instanceof Error)
- {
-    return res.json({message:err.message},{status})
- }
-
- return res.json({message:"internel Server Error"},{status})
-
+    return res.json({message: "Internal server error"}, {status})
 }
 
-export default  ServerCatchError
+export default serverCatchError

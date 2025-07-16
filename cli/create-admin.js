@@ -1,116 +1,133 @@
-import dotenv from "dotenv"
-dotenv.config()
 const log = console.log
+import dotenv from 'dotenv'
+dotenv.config()
 
-import chalk  from "chalk"
-import inquirer from "inquirer"
-import bcrypt from "bcrypt"
-import {MongoClient} from "mongodb"
+import chalk from "chalk";
+import inquirer from 'inquirer'
+import bcrypt from 'bcrypt'
+
+import { MongoClient } from 'mongodb'
 
 
-
-const promptOption= [{
-    type:"list",
-    name:"role",
-    message:"press arro up and down key to choose role ",
-
-    choices:[
+const promptOptions = [{
+    type: "list",
+    name: "role",
+    message: "Press arrow up and down key to choose role",
+    choices: [
         chalk.green("User"),
         chalk.blue("Admin"),
-        chalk.red("Exit"),
+        chalk.red("Exit")
     ]
 }]
 
-const requiredValidation = (input,name)=>{
+const requiredValidation = (input, name)=>{
     if(input.length > 0)
         return true
-    
-    return log(chalk.red(`${name} is required`))
+
+    return log(chalk.red(`${name} is required !`))
+}
+
+const emailValidation = (email)=>{
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValid = regex.test(email);
+
+  if(isValid)
+    return true
+
+  return log(chalk.red(`Please enter email in valid format`))
+}
+
+const passwordValidation = (input)=>{
+  if(input.length < 6)
+    return log(chalk.red(`Password should be atleast 6 character`))
+
+  return true
 }
 
 const inputOptions = [
     {
-        type:"input",
-        name:"fullname",
-        message:'Enter your name ',
+        type: "input",
+        name: "fullname",
+        message: "Enter your fullname ?",
         validate: (input)=>{
-            return  requiredValidation(input,"fullname")
+            return requiredValidation(input, "Fullname")
         }
     },
     {
-        type:"input",
-        name:"email",
-        message:'Enter  email',
+        type: "input",
+        name: "email",
+        message: "Enter your email ?",
         validate: (input)=>{
-           return requiredValidation(input,"email")
+            return (
+                requiredValidation(input, "Email"),
+                emailValidation(input)
+            )
         }
     },
     {
-        type:"input",
-        name:"password",
-        message:'Enter password',
+        type: "input",
+        name: "password",
+        message: "Enter your password ?",
         validate: (input)=>{
-          return  requiredValidation(input,"password")
+            return (
+                requiredValidation(input, "Password"),
+                passwordValidation(input)
+            )
         }
     }
 ]
 
-const createRole = async (role,db)=>{
-    try{ 
-         const input =  await inquirer.prompt(inputOptions)
-         input.role = role
-         input.createdAt = new Date()
-         input.updateAt = new Date()
-         input._v= 0
-        input.password = await bcrypt.hash(input.password,12)
+const createRole = async (role, db)=>{
+    try {
+        const input = await inquirer.prompt(inputOptions)
+        input.password = await bcrypt.hash(input.password, 12)
+        input.role = role
+        input.createdAt = new Date()
+        input.updatedAt = new Date()
+        input.__v = 0
         const User = db.collection("users")
-        await User.insertOne(input) 
-        log(chalk.green(`${role} has been  Created !`))
+        await User.insertOne(input)
+        log(chalk.green(`${role} has been created !`))
         process.exit()
     }
     catch(err)
     {
-        log(chalk.bgRed(`signup faile ${err}`))
+        log(chalk.red(`Signup failed - ${err.message}`))
         process.exit()
     }
 }
 
-
 const exitApp = ()=>{
-    log(chalk.blue(`goodBY exit the process `))
+    log(chalk.blue("Goodbye! Exiting the program."))
     process.exit()
 }
 
-
-const wellcome = async (db)=>{
-
-    log(chalk.bgRed.white.bold("✨ Admin Signup console ✨"))
- 
-    const {role} = await inquirer.prompt(promptOption)
-   
+const welcome = async (db)=>{
+    log(chalk.bgRed.white.bold(" 🌟 Admin signup console 🌟 "))
+    const {role} = await inquirer.prompt(promptOptions)
+    
     if(role.includes("User"))
-        return createRole("user",db)
+        return createRole("user", db)
+
     if(role.includes("Admin"))
-        return createRole("admin",db)
+        return createRole("admin", db)
 
     if(role.includes("Exit"))
-     return exitApp()
+        return exitApp()
 }
 
-const main = async (db)=>{
-MongoClient.connect(process.env.DB_URL)
+const main = async ()=>{
+    MongoClient.connect(process.env.DB_URL)
 
-.then((conn)=>{
-    db = conn.db(process.env.DB_NAME)
-    wellcome(db)
-})
+    .then((conn)=>{
+        const db = conn.db(process.env.DB_NAME)
+        welcome(db)
+    })
 
-.catch(()=>{
-    log(chalk.redBright("Faild to connect with database"))
-    process.exit()
-})
-
-   
+    .catch(()=>{
+        log(chalk.redBright("Failed to connect with database"))
+        process.exit()
+    })
 }
 
 main()

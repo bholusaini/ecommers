@@ -1,12 +1,7 @@
-import Products from "../../../components/admin/products/Prodect"
+import Products from "@/components/admin/Products";
 
-
-const ProdectRouter = () => {
-  return (
-    <div>
-      <Products/>
-    </div>
-  )
+const ProductsRouter = ()=>{
+  return <Products />
 }
 
-export default ProdectRouter
+export default ProductsRouter

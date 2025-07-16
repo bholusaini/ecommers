@@ -1,17 +1,16 @@
-import Image from 'next/image'
 import React from 'react'
+import Image from 'next/image'
 
 const Logo = () => {
   return (
-    <div>
-      <Image
-        src="/images/logo.jpg"
-        alt="Logo"
-        width={50}
-        height={0}
-   
-      />
-    </div>
+    <Image 
+        src="/images/logo.png"
+        width={120}
+        height={50}
+        alt="logo"
+        priority
+        style={{width: 'auto', height: 'auto'}}
+    />
   )
 }
 

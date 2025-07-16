@@ -4,13 +4,12 @@ import { Avatar, Skeleton, Table, Tag } from 'antd'
 import React from 'react'
 import moment from 'moment'
 import useSWR from 'swr'
-import fetecher from '../../Lib/fetecher'
-
+import fetcher from '@/lib/fetcher'
 
 
 
 const Payments = () => {
-  const {data, error, isLoading} = useSWR("/api/payment", fetecher)
+  const {data, error, isLoading} = useSWR("/api/payment", fetcher)
   console.log(data)
   if(isLoading)
     return <Skeleton active />

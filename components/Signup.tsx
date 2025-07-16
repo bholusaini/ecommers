@@ -2,21 +2,26 @@
 import { Button, Card, Form, Input } from 'antd'
 import Image from 'next/image'
 import React from 'react'
-
+import Logo from './shared/Logo'
 import { UserAddOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
-import Logo from './shared/logo'
+import clientCatchError from '@/lib/client-catch-error'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
-
 
 const Signup = () => {
     const router = useRouter()
 
-    const signup = async (value: any)=>{      
-      await axios.post("/api/user/signup",value)      
-       router.push("/login")
+    const signup = async (value: any)=>{
+        try {
+            await axios.post("/api/user/signup", value)
+            router.push("/login")
+        }
+        catch(err)
+        {
+            clientCatchError(err)
+        }
     }
 
     return (

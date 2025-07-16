@@ -1,52 +1,56 @@
 'use client'
 import { Button, Card, Divider, Form, Input } from 'antd'
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
+import Logo from './shared/Logo'
 import { ArrowRightOutlined, GoogleOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
-import Logo from './shared/logo'
 import { getSession, signIn } from 'next-auth/react'
-
-import ClientCatchError from '@/Lib/client-catch-error'
+import clientCatchError from '@/lib/client-catch-error'
 import { useRouter } from 'next/navigation'
 
-
 const Login= () => {
+    const [loading, setLoading] = useState(false)
+
     const router = useRouter()
-    const login = async  (value: any)=>{
-      try{
-          const payload = {
-           ...value,
-            redirect:false,
-            
+
+    const login = async (value: any)=>{
+        try {
+            setLoading(true)
+            const payload = {
+                    ...value,
+                    redirect: false
+            }
+            await signIn("credentials", payload)
+            const session = await getSession()
+
+            if(!session)
+                throw new Error("Failed to login user")
+
+            if(session.user.role === "user")
+                return router.replace("/")
+
+            if(session.user.role === "admin")
+                return router.replace("/admin/orders")
+        }
+        catch(err)
+        {
+            clientCatchError(err)
+        }
+        finally {
+            setLoading(false)
+        }
+    }
+
+    const signInWithGoogle = async ()=>{
+        const payload = {
+            redirect: true,
+            callbackUrl: '/'
         }
 
-        const res =  await signIn('credentials',payload)
-
-        if (!res || !res.ok) {
-           throw new Error("Invalid email or password");
-           }
-
-        const session = await getSession() 
-
-        console.log(session)
-       
-        if(!session)
-            throw new Error("faild to login user")
-       
-        if(session.user.role === "user")
-            return router.replace("/user/orders")
-
-        if(session.user.role === "admin")
-            return router.replace("/admin/orders")
-      }
-      catch(err)
-      {
-        ClientCatchError(err)
-      }
-        
-      
+        const res = await signIn("google", payload)
+        console.log(res)
     }
 
     return (
@@ -85,11 +89,11 @@ const Login= () => {
                             </Form.Item>
 
                             <Form.Item>
-                                <Button htmlType='submit' size='large' type="primary" icon={<ArrowRightOutlined />} className='!bg-violet-500 hover:!bg-violet-600'>Sign in</Button>
+                                <Button loading={loading} htmlType='submit' size='large' type="primary" icon={<ArrowRightOutlined />} className='!bg-violet-500 hover:!bg-violet-600'>Sign in</Button>
                             </Form.Item>
                         </Form>
                         <Divider />
-                        <Button icon={<GoogleOutlined />} size='large' className='!w-full' type="primary" danger>Signin with Google</Button>
+                        <Button onClick={signInWithGoogle} icon={<GoogleOutlined />} size='large' className='!w-full' type="primary" danger>Signin with Google</Button>
                         <div className='flex gap-2'>
                             <p className='text-gray-500'>Don`t have an acount ?</p>
                             <Link href="/signup">Sign up</Link>

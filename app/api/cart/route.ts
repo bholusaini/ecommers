@@ -1,4 +1,4 @@
-
+import serverCatchError from "@/lib/server-catch-error";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 const db = `${process.env.DB_URL}/${process.env.DB_NAME}`
@@ -6,9 +6,7 @@ mongoose.connect(db)
 
 import { NextRequest, NextResponse as res } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
-import CartModel from "../../../model/cart.model";
-import ServerCatchError from "../../../Lib/server-catch-error";
-
+import CartModel from "@/models/cart.model";
 
 export const POST = async (req: NextRequest)=>{
     try {
@@ -31,7 +29,7 @@ export const POST = async (req: NextRequest)=>{
     }
     catch(err)
     {
-        return ServerCatchError(err)
+        return serverCatchError(err)
     }
 }
 
@@ -48,14 +46,15 @@ export const GET = async (req: NextRequest)=>{
         const {searchParams} = new URL(req.url)
         if(searchParams.get("count"))
         {
-            const count  = await CartModel.countDocuments({user:session.user.id})
+            const count = await CartModel.countDocuments({user: session.user.id})
             return res.json({count})
         }
+
         const carts = await CartModel.find({user: session.user.id}).populate('product')
         return res.json(carts)
     }
     catch(err)
     {
-        return ServerCatchError(err)
+        return serverCatchError(err)
     }
 }

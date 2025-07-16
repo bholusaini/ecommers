@@ -1,6 +1,6 @@
 interface SlugInterface {
-    params:{
-        slug:string
+    params: {
+        slug: string
     }
 }
 

@@ -1,8 +1,7 @@
-
 import axios, { isAxiosError } from "axios"
 
-const fetecher = async (url:string)=>{
-    try{
+const fetcher = async (url: string)=>{
+    try {
         const {data} = await axios.get(url)
         return data
     }
@@ -20,4 +19,4 @@ const fetecher = async (url:string)=>{
     }
 }
 
-export default fetecher
+export default fetcher
