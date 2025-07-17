@@ -1,13 +1,26 @@
 'use client'
-import { Card, Skeleton } from 'antd'
+import { Card, Select, Skeleton } from 'antd'
 import React from 'react'
 import Image from 'next/image'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import fetcher from '@/lib/fetcher'
 import moment from 'moment'
+import axios from 'axios'
+import clientCatchError from '../../lib/client-catch-error'
 
 const Users = () => {
   const {data, error, isLoading} = useSWR('/api/user', fetcher)
+
+   const changeRole = async (role: string, userId: string)=>{
+    try {
+      await axios.put(`/api/user/role/${userId}`, {role})
+      mutate("/api/user")
+    }
+    catch(err)
+    {
+      clientCatchError(err)
+    }
+  }
 
   if(isLoading)
     return <Skeleton active />
@@ -33,7 +46,13 @@ const Users = () => {
                 title={<label className='capitalize'>{item.fullname}</label>}
                 description={item.email}
               />
-              <label className='text-gray-500 font-medium'>
+
+              <Select className='!w-fit !text-center' defaultValue={item.role} size='large' onChange={(role:string)=>changeRole(role,item.id) }>
+               <Select.Option value="user">User</Select.Option>
+               <Select.Option value="admin">Admin</Select.Option>
+              </Select>
+
+              <label className='text- gray-500 font-medium'>
                 { moment(item.createdAt).format('MMM DD, YYYY hh:mm A') }
               </label>
             </div>

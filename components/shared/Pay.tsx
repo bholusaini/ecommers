@@ -102,7 +102,7 @@ const Pay: FC<PayInterface> = ({product, onSuccess, onFailed, title="Pay now", t
       }
 
       const payload = {
-        amount: isArr ? getTotalAmount() : product.price
+        amount: isArr ? getTotalAmount() :  priceCalculate( product.price,product.discount)
       }
       
       const {data} = await axios.post('/api/razorpay/order', payload)

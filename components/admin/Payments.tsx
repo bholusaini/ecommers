@@ -5,6 +5,7 @@ import React from 'react'
 import moment from 'moment'
 import useSWR from 'swr'
 import fetcher from '@/lib/fetcher'
+import { title } from 'process'
 
 
 
@@ -31,41 +32,67 @@ const Payments = () => {
         </div>
       )
     },
+   
     {
-      title: "Product",
-      key: "product",
+      title: 'Order ID',
+      key: 'orderId',
+      dataIndex: 'orderId',
+    },
+    {
+      title: 'Payment ID',
+      key: 'paymentId',
+      dataIndex: 'paymentId'
+    },
+    {
+      title: 'Amount',
+      key: 'amount',
       render: (item: any)=>(
-        <label className='capitalize'>{item.order.product.title}</label>
+        <label>₹{item.amount.toLocaleString()}</label>
       )
     },
     {
-      title: "Payment ID",
-      key: "paymentId",
+      title: 'Fee',
+      key: 'fee',
       render: (item: any)=>(
-        <label className='capitalize'>{item.paymentId}</label>
+        item.fee ? <label>₹{item.fee}</label> : 0
       )
     },
     {
-      title: "Amount",
-      key: "amount",
+      title: 'Tax',
+      key: 'tax',
       render: (item: any)=>(
-        <label>₹{item.order.price}</label>
-      )
-    },
-    {
-      title: 'Vendor',
-      key: 'vendor',
-      render: (item: any)=>(
-        <Tag className='capitalize'>{item.vendor}</Tag>
+        item.tax ? <label>₹{item.tax}</label> : 0
       )
     },
     {
       title: "Date",
       key: "date",
       render: (item: any)=>(
-        <label>{moment(item.createdAt).format('MMM DD, YYYY hh:mm A')}</label>
+        moment(item.createdAt).format('MMM DD, YYYY hh:mm A')
       )
-    }
+    },
+    {
+      title: 'Method',
+      key: 'method',
+      render: (item: any)=>(
+        <Tag className='uppercase' color="cyan-inverse">{item.method}</Tag>
+      )
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (item: any)=>(
+        <>
+          {
+            item.status === "captured" ? 
+            <Tag className='uppercase' color="green">{item.status}</Tag>
+            :
+            <Tag className='uppercase' color="magenta">{item.status}</Tag>
+          }
+        </>
+      )
+    } 
+    
   ]
 
   return (
@@ -74,6 +101,7 @@ const Payments = () => {
         columns={columns}
         dataSource={data}
         rowKey="_id"
+        scroll={{x:"max-context"}}
       />
     </div>
   )

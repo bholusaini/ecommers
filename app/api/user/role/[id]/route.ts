@@ -1,37 +1,29 @@
 const db = `${process.env.DB_URL}/${process.env.DB_NAME}`
+import IdInterface from "@/interface/id.interface";
 import serverCatchError from "@/lib/server-catch-error";
-import PaymentModel from "@/models/payment.model";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse as res } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
+import UserModel from "@/models/user.model";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import '@ant-design/v5-patch-for-react-19';
 mongoose.connect(db)
 
-export const POST = async (req: NextRequest)=>{
-    try {
-        const body = await req.json()
-        const payment = await PaymentModel.create(body)
-        return res.json(payment)
-    }
-    catch(err)
-    { 
-        return serverCatchError(err)
-    }
-}
-
-export const GET = async (req: NextRequest)=>{
+export const PUT = async (req: NextRequest, context: IdInterface)=>{
     try {
         const session = await getServerSession(authOptions)
+
         if(!session)
             return res.json({message: 'Unauthorized'}, {status: 401})
 
         if(session.user.role !== "admin")
             return res.json({message: 'Unauthorized'}, {status: 401})
 
-        const payments = await PaymentModel.find().sort({createdAt: -1})
-        .populate("user", "fullname email")
-        
-        return res.json(payments)
+        const userId = context.params.id
+        const body = await req.json()
+
+        await UserModel.updateOne({_id: userId}, {role: body.role})
+        return res.json({message: 'Role changed !'})
     }
     catch(err)
     {

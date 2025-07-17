@@ -66,7 +66,7 @@ const Carts = () => {
   }
 
   if(data.length === 0)
-    return <Empty />
+    return <Empty description="your cart is epty" />
 
   return (
     <div className='flex flex-col gap-8'>

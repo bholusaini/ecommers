@@ -164,6 +164,7 @@ const Orders = () => {
         columns={columns}
         dataSource={data}
         rowKey="_id"
+        scroll={{x:"max-context"}}
         expandable={{
           expandedRowRender: browseProducts,
           rowExpandable: (record: any) => record.name !== 'Not Expandable',

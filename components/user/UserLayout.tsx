@@ -21,24 +21,30 @@ const UserLayout: FC<ChildrenInterface> = ({children}) => {
     {
       icon: <ShoppingOutlined />,
       label: <Link href="/user/carts">Carts</Link>,
-      key: 'cart'
+      key: '/user/carts'
     },
     {
       icon: <ReconciliationOutlined />,
       label: <Link href="/user/orders">Orders</Link>,
-      key: 'orders'
+      key:'/user/orders'
     },
     {
       icon: <SettingOutlined />,
       label: <Link href="/user/settings">Settings</Link>,
-      key: 'settings'
+      key: '/user/settings'
     }
   ]
 
   return (
     <Layout className='min-h-screen'>
         <Sider width={300} className='border-r border-r-gray-100'>
-            <Menu theme="light" mode="inline" items={menus} className='h-full' />
+            <Menu 
+            theme="light" 
+            mode="inline" 
+            items={menus} 
+            className='h-full'
+            selectedKeys={[pathname]}
+            />
             {
               session.data &&
               <div className='bg-indigo-600 p-4 fixed bottom-0 left-0 w-[300px] flex flex-col gap-4'>

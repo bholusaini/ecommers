@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, Card, Divider, Select, Skeleton, Table, Tag } from 'antd'
+import { Avatar, Card, Divider, Empty, Select, Skeleton, Table, Tag } from 'antd'
 import { title } from 'process'
 import React from 'react'
 import moment from 'moment'
@@ -30,27 +30,11 @@ const Orders = () => {
       return "#f50"
   }
 
-  const totalPrice = ()=>{
-    let sum = 0
-    for(let i=0; i<data.length; i++)
-    {
-      const prices = data[i].prices
-      const qnts = data[i].quantities
-      const discounts = data[i].discounts
 
-      for(let j=0; j<prices.length; j++)
-      {
-        const price = prices[j]
-        const discount = discounts[j]
-        const qnt = qnts[j]
-        const amount = priceCalculate(price, discount)
-        const total = amount*qnt
-        sum = sum+total
-      }
-    }
 
-    return sum
-  }
+if(data.length ===0 ){
+  return <Empty description="No order founds"/>
+}
 
   return (
     <div className='flex flex-col gap-12'>
@@ -93,7 +77,7 @@ const Orders = () => {
               }
             </div>
             <Divider />
-            <h1 className='text-3xl font-bold'>Total : </h1>
+            <h1 className='text-3xl font-bold'>`Total :{item.grossTotal.toLocaleString()} ₹</h1>
           </Card>
         ))
       }

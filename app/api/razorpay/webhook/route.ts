@@ -14,13 +14,20 @@ interface CreateOrderInterface {
     products: string[]
     discounts: string[]
     prices: string[]
+    grossTota:number
 }
 
 interface CreatePaymentInterface {
     user: string
     paymentId: string
-    order: string
+    orderId: string
     vendor?: 'razorpay' | 'stripe'
+    tax:number,
+    fee:number
+    method:string
+    currency:string
+    status:string
+    amount:number
 }
 
 interface DeleteCartsInterface {
@@ -40,11 +47,12 @@ const createLog = (err: unknown, service: string)=>{
 
 const createOrder = async (order: CreateOrderInterface)=>{
     try {
-        const {_id} = await OrderModel.create(order)
-        return _id
+        const {orderId} = await OrderModel.create(order)
+        return orderId
     }
     catch(err)
-    {
+    {    
+        
         return createLog(err, "order")
     }
 }
@@ -81,6 +89,8 @@ export const POST = async (req: NextRequest)=>{
         const body = await req.json()
         const user = body.payload.payment.entity.notes.user
         const paymentId = body.payload.payment.entity.id
+        const {tax,fee,status,method,currency } = body.payload.payment.entity
+        const grossTotal = (body.payload.payment.entity.amount/100)
         const orders = JSON.parse(body.payload.payment.entity.notes.orders)
 
         const mySignature = crypto.createHmac('sha256', process.env.RAZORPAY_WEBHHOK_SECRET!)
@@ -93,12 +103,22 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.authorized" && process.env.NODE_ENV === "development")
        {
-            const orderId = await createOrder({user, ...orders})
+            const orderId = await createOrder({user, ...orders,grossTotal})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})
 
-            const payment = await createPayment({user, order: orderId, paymentId})
+            const payment = await createPayment({
+                user, 
+                orderId, 
+                paymentId,
+                tax,
+                fee,
+                currency,
+                amount:grossTotal,
+                method,
+                status   
+            })
             
             if(!payment)
                 return res.json({message: 'Failed to create payment'}, {status: 424})
@@ -110,12 +130,22 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.captured")
        {
-            const orderId = await createOrder({user, ...orders})
+            const orderId = await createOrder({user, ...orders,grossTotal})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})
 
-            const payment = await createPayment({user, order: orderId, paymentId})
+            const payment = await createPayment({
+                user, 
+                orderId, 
+                paymentId,
+                tax,
+                fee,
+                currency,
+                amount:grossTotal,
+                method,
+                status  
+            })
             
             if(!payment)
                 return res.json({message: 'Failed to create payment'}, {status: 424})

@@ -3,10 +3,12 @@ import serverCatchError from "@/lib/server-catch-error";
 import UserModel from "@/models/user.model";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
+import '@ant-design/v5-patch-for-react-19';
 mongoose.connect(db)
 
 import { NextRequest, NextResponse as res } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
+
 
 export const GET = async (req: NextRequest)=>{
     try {
@@ -17,7 +19,8 @@ export const GET = async (req: NextRequest)=>{
         if(session.user.role !== "admin")
             return res.json({message: 'Unauthorized'}, {status: 401})
 
-        const users = await UserModel.find({role: "user"}, {password: 0}).sort({createdAt: -1})
+        const id = session.user.id
+        const users = await UserModel.find({_id: {$ne: id}}, {password: 0}).sort({createdAt: -1})
         return res.json(users)
     }
     catch(err)
