@@ -14,7 +14,7 @@ export const POST = async (req: NextRequest)=>{
         return res.json(payment)
     }
     catch(err)
-    { 
+    {
         return serverCatchError(err)
     }
 }
@@ -30,7 +30,6 @@ export const GET = async (req: NextRequest)=>{
 
         const payments = await PaymentModel.find().sort({createdAt: -1})
         .populate("user", "fullname email")
-        
         return res.json(payments)
     }
     catch(err)

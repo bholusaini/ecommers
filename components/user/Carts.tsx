@@ -6,12 +6,13 @@ import useSWR, { mutate } from 'swr'
 import ErrorMessage from '../shared/ErrorMessage'
 import Image from 'next/image'
 import priceCalculate from '@/lib/price-calculate'
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, MinusOutlined, PlusOutlined, ShopOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import clientCatchError from '@/lib/client-catch-error'
 import axios from 'axios'
 import Pay from '../shared/Pay'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const Carts = () => {
   const {data, error, isLoading} = useSWR('/api/cart', fetcher)
@@ -66,7 +67,14 @@ const Carts = () => {
   }
 
   if(data.length === 0)
-    return <Empty description="your cart is epty" />
+    return (
+    <div className='flex flex-col items-center gap-4'>
+      <Empty description="Your cart is empty" />
+      <Link href="/">
+        <Button type='primary' icon={<ShopOutlined />} size='large'>Shop now</Button>
+      </Link>
+    </div>
+    )
 
   return (
     <div className='flex flex-col gap-8'>

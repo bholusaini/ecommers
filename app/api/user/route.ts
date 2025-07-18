@@ -3,12 +3,10 @@ import serverCatchError from "@/lib/server-catch-error";
 import UserModel from "@/models/user.model";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
-import '@ant-design/v5-patch-for-react-19';
 mongoose.connect(db)
 
 import { NextRequest, NextResponse as res } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
-
 
 export const GET = async (req: NextRequest)=>{
     try {

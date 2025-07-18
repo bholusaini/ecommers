@@ -4,10 +4,7 @@ import { FC } from 'react';
 import {
   CreditCardOutlined,
   LoginOutlined,
-  MailOutlined,
-  ProfileOutlined,
   ReconciliationOutlined,
-  SettingOutlined,
   ShoppingOutlined,
   UserOutlined
 } from '@ant-design/icons';

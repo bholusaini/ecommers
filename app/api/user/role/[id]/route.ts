@@ -6,7 +6,6 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse as res } from "next/server";
 import UserModel from "@/models/user.model";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import '@ant-design/v5-patch-for-react-19';
 mongoose.connect(db)
 
 export const PUT = async (req: NextRequest, context: IdInterface)=>{

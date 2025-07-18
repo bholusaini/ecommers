@@ -1,6 +1,6 @@
 'use client'
 import ChildrenInterface from '@/interface/children.interface'
-import { CreditCardOutlined, LogoutOutlined, ReconciliationOutlined, SettingOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons'
+import { LogoutOutlined, ReconciliationOutlined, SettingOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons'
 import { Avatar, Breadcrumb, Button, Card, Layout, Menu } from 'antd'
 import Sider from 'antd/es/layout/Sider'
 import Link from 'next/link'
@@ -26,7 +26,7 @@ const UserLayout: FC<ChildrenInterface> = ({children}) => {
     {
       icon: <ReconciliationOutlined />,
       label: <Link href="/user/orders">Orders</Link>,
-      key:'/user/orders'
+      key: '/user/orders'
     },
     {
       icon: <SettingOutlined />,
@@ -35,15 +35,16 @@ const UserLayout: FC<ChildrenInterface> = ({children}) => {
     }
   ]
 
+  console.log("sonu", pathname)
   return (
     <Layout className='min-h-screen'>
         <Sider width={300} className='border-r border-r-gray-100'>
             <Menu 
-            theme="light" 
-            mode="inline" 
-            items={menus} 
-            className='h-full'
-            selectedKeys={[pathname]}
+              theme="light" 
+              mode="inline" 
+              items={menus} 
+              className='h-full' 
+              selectedKeys={[pathname]}
             />
             {
               session.data &&

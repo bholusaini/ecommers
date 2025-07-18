@@ -5,13 +5,13 @@ import Image from 'next/image'
 import useSWR, { mutate } from 'swr'
 import fetcher from '@/lib/fetcher'
 import moment from 'moment'
+import clientCatchError from '@/lib/client-catch-error'
 import axios from 'axios'
-import clientCatchError from '../../lib/client-catch-error'
 
 const Users = () => {
   const {data, error, isLoading} = useSWR('/api/user', fetcher)
 
-   const changeRole = async (role: string, userId: string)=>{
+  const changeRole = async (role: string, userId: string)=>{
     try {
       await axios.put(`/api/user/role/${userId}`, {role})
       mutate("/api/user")
@@ -21,6 +21,7 @@ const Users = () => {
       clientCatchError(err)
     }
   }
+
 
   if(isLoading)
     return <Skeleton active />
@@ -43,16 +44,16 @@ const Users = () => {
                 objectFit='cover'
               />
               <Card.Meta 
+                className='text-center'
                 title={<label className='capitalize'>{item.fullname}</label>}
                 description={item.email}
               />
 
-              <Select className='!w-fit !text-center' defaultValue={item.role} size='large' onChange={(role:string)=>changeRole(role,item.id) }>
-               <Select.Option value="user">User</Select.Option>
-               <Select.Option value="admin">Admin</Select.Option>
+              <Select className='!w-fit !text-center' defaultValue={item.role} size='large' onChange={(role: string)=>changeRole(role, item._id)}>
+                <Select.Option value="user">User</Select.Option>
+                <Select.Option value="admin">Admin</Select.Option>
               </Select>
-
-              <label className='text- gray-500 font-medium'>
+              <label className='text-gray-500 font-medium'>
                 { moment(item.createdAt).format('MMM DD, YYYY hh:mm A') }
               </label>
             </div>

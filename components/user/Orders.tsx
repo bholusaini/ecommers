@@ -1,7 +1,6 @@
 'use client'
 
-import { Avatar, Card, Divider, Empty, Select, Skeleton, Table, Tag } from 'antd'
-import { title } from 'process'
+import {Card, Divider, Empty, Skeleton, Tag } from 'antd'
 import React from 'react'
 import moment from 'moment'
 import useSWR from 'swr'
@@ -30,11 +29,8 @@ const Orders = () => {
       return "#f50"
   }
 
-
-
-if(data.length ===0 ){
-  return <Empty description="No order founds"/>
-}
+  if(data.length === 0)
+    return <Empty description="No order found !" />
 
   return (
     <div className='flex flex-col gap-12'>
@@ -77,7 +73,7 @@ if(data.length ===0 ){
               }
             </div>
             <Divider />
-            <h1 className='text-3xl font-bold'>`Total :{item.grossTotal.toLocaleString()} ₹</h1>
+            <h1 className='text-3xl font-bold'>Total : ₹{item.grossTotal.toLocaleString()}</h1>
           </Card>
         ))
       }

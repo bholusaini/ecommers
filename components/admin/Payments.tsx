@@ -5,7 +5,6 @@ import React from 'react'
 import moment from 'moment'
 import useSWR from 'swr'
 import fetcher from '@/lib/fetcher'
-import { title } from 'process'
 
 
 
@@ -24,7 +23,7 @@ const Payments = () => {
       key: 'customer',
       render: (item: any)=>(
         <div className='flex gap-3'>
-          <Avatar size="large" className='!bg-orange-500'>M</Avatar>
+          <Avatar size="large" className='!bg-orange-500 capitalize'>{item.user.fullname[0]}</Avatar>
           <div className='flex flex-col'>
             <h1 className='font-medium capitalize'>{item.user.fullname}</h1>
             <label className='text-gray-500'>{item.user.email}</label>
@@ -32,7 +31,6 @@ const Payments = () => {
         </div>
       )
     },
-   
     {
       title: 'Order ID',
       key: 'orderId',
@@ -91,8 +89,7 @@ const Payments = () => {
           }
         </>
       )
-    } 
-    
+    }
   ]
 
   return (
@@ -101,7 +98,7 @@ const Payments = () => {
         columns={columns}
         dataSource={data}
         rowKey="_id"
-        scroll={{x:"max-context"}}
+        scroll={{ x: "max-context" }}
       />
     </div>
   )

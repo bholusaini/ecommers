@@ -29,7 +29,7 @@ const Products: FC<DataInterface> = ({data}) => {
     }
     catch(err)
     {
-      clientCatchError(err)
+      clientCatchError(err, "You are admin please switch to your user account")
     }
   }
 

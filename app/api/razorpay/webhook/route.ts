@@ -14,7 +14,7 @@ interface CreateOrderInterface {
     products: string[]
     discounts: string[]
     prices: string[]
-    grossTota:number
+    grossTotal: number
 }
 
 interface CreatePaymentInterface {
@@ -22,12 +22,12 @@ interface CreatePaymentInterface {
     paymentId: string
     orderId: string
     vendor?: 'razorpay' | 'stripe'
-    tax:number,
-    fee:number
-    method:string
-    currency:string
-    status:string
-    amount:number
+    tax: number
+    status: string
+    currency: string
+    amount: number
+    fee: number
+    method: string
 }
 
 interface DeleteCartsInterface {
@@ -51,8 +51,7 @@ const createOrder = async (order: CreateOrderInterface)=>{
         return orderId
     }
     catch(err)
-    {    
-        
+    {
         return createLog(err, "order")
     }
 }
@@ -89,7 +88,7 @@ export const POST = async (req: NextRequest)=>{
         const body = await req.json()
         const user = body.payload.payment.entity.notes.user
         const paymentId = body.payload.payment.entity.id
-        const {tax,fee,status,method,currency } = body.payload.payment.entity
+        const {tax, fee, status, method, currency} = body.payload.payment.entity
         const grossTotal = (body.payload.payment.entity.amount/100)
         const orders = JSON.parse(body.payload.payment.entity.notes.orders)
 
@@ -103,7 +102,7 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.authorized" && process.env.NODE_ENV === "development")
        {
-            const orderId = await createOrder({user, ...orders,grossTotal})
+            const orderId = await createOrder({user, ...orders, grossTotal})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})
@@ -114,10 +113,10 @@ export const POST = async (req: NextRequest)=>{
                 paymentId,
                 tax,
                 fee,
+                status,
                 currency,
-                amount:grossTotal,
-                method,
-                status   
+                amount: grossTotal,
+                method
             })
             
             if(!payment)
@@ -130,7 +129,7 @@ export const POST = async (req: NextRequest)=>{
 
        if(body.event === "payment.captured")
        {
-            const orderId = await createOrder({user, ...orders,grossTotal})
+            const orderId = await createOrder({user, ...orders, grossTotal})
 
             if(!orderId)
                 return res.json({message: 'Failed to create order'}, {status: 424})
@@ -141,10 +140,10 @@ export const POST = async (req: NextRequest)=>{
                 paymentId,
                 tax,
                 fee,
+                status,
                 currency,
-                amount:grossTotal,
-                method,
-                status  
+                amount: grossTotal,
+                method
             })
             
             if(!payment)

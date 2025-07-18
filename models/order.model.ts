@@ -29,10 +29,10 @@ const orderSchema = new Schema({
         type: Number,
         required: true
     }],
-   grossTotal:{
-     type :Number,
-     required:true
-   },
+    grossTotal: {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         default: 'processing',

@@ -1,7 +1,6 @@
 'use client'
 
 import { Avatar, Card, message, Select, Skeleton, Table, Tag } from 'antd'
-import { title } from 'process'
 import React from 'react'
 import moment from 'moment'
 import useSWR, { mutate } from 'swr'
@@ -13,10 +12,7 @@ import priceCalculate from '@/lib/price-calculate'
 import Image from 'next/image'
 
 const Orders = () => {
-
   const {data, error, isLoading} = useSWR('/api/order', fetcher)
-
-  console.log(data)
 
   if(isLoading)
     return <Skeleton active />
@@ -164,11 +160,11 @@ const Orders = () => {
         columns={columns}
         dataSource={data}
         rowKey="_id"
-        scroll={{x:"max-context"}}
         expandable={{
           expandedRowRender: browseProducts,
           rowExpandable: (record: any) => record.name !== 'Not Expandable',
         }}
+        scroll={{x: "max-content"}}
       />
     </div>
   )

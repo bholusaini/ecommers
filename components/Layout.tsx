@@ -5,10 +5,10 @@ import React, { FC } from 'react'
 import 'animate.css'
 import Logo from './shared/Logo'
 import Link from 'next/link'
-import { LoginOutlined, ProfileOutlined, SettingOutlined, ShoppingCartOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons'
+import { LoginOutlined, SettingOutlined, ShoppingCartOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons'
 import { usePathname } from 'next/navigation'
 import { Avatar, Badge, Dropdown, Tooltip } from 'antd'
-import { SessionProvider, signOut, useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import useSWR from 'swr'
 import fetcher from '@/lib/fetcher'
 
@@ -26,7 +26,7 @@ const menus = [
 const Layout: FC<ChildrenInterface> = ({children}) => {
   const pathname = usePathname()
   const session = useSession()
-    const {data} = useSWR(
+  const {data} = useSWR(
     session?.data?.user.role === "user" ? '/api/cart?count=true' : null, 
     session?.data?.user.role === "user" ? fetcher: null
   ) 
