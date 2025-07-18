@@ -7,7 +7,7 @@ import { ArrowRightOutlined, GoogleOutlined } from '@ant-design/icons'
 import '@ant-design/v5-patch-for-react-19';
 import Link from 'next/link'
 import { getSession, signIn } from 'next-auth/react'
-import clientCatchError from '@/lib/client-catch-error'
+import clientCatchError from '@/Lib/client-catch-error'
 import { useRouter } from 'next/navigation'
 
 const Login= () => {

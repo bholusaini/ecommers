@@ -1,6 +1,6 @@
 'use client'
 import DataInterface from '@/interface/data.interface'
-import clientCatchError from '@/lib/client-catch-error'
+import clientCatchError from '@/Lib/client-catch-error'
 import { ShoppingCartOutlined } from '@ant-design/icons'
 import { Button, Card, message } from 'antd'
 import axios from 'axios'
